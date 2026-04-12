@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #FF7900; /* Vibrant Orange */
+  --primary-foreground: #ffffff;
+  --secondary: #0A192F; /* Deep Navy for Contrast */
+  --secondary-foreground: #ffffff;
+  --accent: #E8F5E9; /* Light Sage Green */
+  --accent-foreground: #2E7D32;
+  --muted: #F8FAFC;
+  --muted-foreground: #64748b;
+  --destructive: #ef4444;
+  --destructive-foreground: #f8fafc;
+  --border: #E0E7FF;
+  --input: #e2e8f0;
+  --ring: #FF7900;
+  --radius: 0.75rem;
+  
+  --sage-border: #C8E6C9;
+  --sage-bg: #F1F8F1;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --primary: #FF7900;
+  --secondary: #E8F5E9;
+  --muted: #334155;
+  --accent: #1e293b;
+  --border: #334155;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  .container {
+    @apply mx-auto px-4 max-w-7xl;
+  }
+}
+
+.glass {
+  @apply bg-white/20 backdrop-blur-lg border border-white/30;
+}
+
+.btn-primary {
+  @apply bg-primary text-white font-bold py-3 px-8 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98];
+}
+
+.section-sage {
+  @apply bg-accent/30 py-20 px-6;
+}
