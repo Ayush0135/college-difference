@@ -5,12 +5,10 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "College Discovery Platform | Find Your Future",
+  title: "Degree Difference | Find Your Future",
   description: "Verified reviews, detailed fee structures and placement data for top Indian colleges.",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{

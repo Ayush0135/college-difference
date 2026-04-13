@@ -1,7 +1,8 @@
 'use client'
 
-import { Search, MapPin, ChevronDown, Edit3, Grid, Bell, User } from 'lucide-react'
+import { Search, Grid, Bell, User, GraduationCap } from 'lucide-react'
 import Link from 'next/link'
+import GoalCitySelector from './goal-city-selector'
 
 export default function Navbar() {
     return (
@@ -9,16 +10,17 @@ export default function Navbar() {
             {/* Top Bar */}
             <div className="container mx-auto px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-8">
-                    <Link href="/" className="text-2xl font-black text-white flex items-center gap-1">
-                        collegedunia <span className="text-[10px] bg-primary px-1 rounded">.</span>
+                    <Link href="/" className="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-500 shadow-lg shadow-blue-500/20">
+                            <GraduationCap size={20} className="text-white" />
+                        </div>
+                        <span className="flex items-center">
+                            Degree<span className="text-emerald-400">Difference</span>
+                        </span>
                     </Link>
                     
                     <div className="hidden lg:flex items-center gap-4 text-white/80 text-sm font-medium">
-                        <div className="flex items-center gap-1 cursor-pointer hover:text-white">
-                            <MapPin size={16} className="text-primary" />
-                            <span>Select Goal & City</span>
-                            <ChevronDown size={14} />
-                        </div>
+                        <GoalCitySelector />
                     </div>
                 </div>
 
@@ -34,14 +36,6 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-6 text-white text-sm font-bold">
-                    <div className="flex items-center gap-2 cursor-pointer hover:text-primary">
-                        <Edit3 size={18} />
-                        <div className="flex flex-col">
-                            <span>Write a Review</span>
-                            <span className="text-[10px] bg-primary/20 text-primary px-1 rounded">Get Upto ₹300*</span>
-                        </div>
-                    </div>
-                    
                     <div className="flex items-center gap-1 cursor-pointer">
                         <Grid size={18} />
                         <span>Explore</span>
@@ -51,21 +45,6 @@ export default function Navbar() {
                     
                     <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer">
                         <User size={18} />
-                    </div>
-                </div>
-            </div>
-
-            {/* Nav Bar */}
-            <div className="bg-black/20 text-white/90 text-xs font-bold py-2">
-                <div className="container mx-auto px-4 flex items-center gap-6">
-                    {['All Courses', 'B.Tech', 'MBA', 'M.Tech', 'MBBS', 'B.Com', 'B.Sc', 'B.Sc (Nursing)', 'BA', 'BBA', 'BCA'].map(nav => (
-                        <Link key={nav} href="#" className="hover:text-primary transition-colors whitespace-nowrap">
-                            {nav}
-                        </Link>
-                    ))}
-                    <div className="ml-auto flex items-center gap-4">
-                        <Link href="#" className="flex items-center gap-1">Study Abroad</Link>
-                        <Link href="#" className="flex items-center gap-1 text-blue-400">Course Finder</Link>
                     </div>
                 </div>
             </div>

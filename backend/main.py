@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from auth import router as auth_router
 from sync import router as sync_router
+from locations import router as locations_router
 from banners import router as banner_router
-import uvicorn
 
-app = FastAPI(title="College Discovery Platform API")
+app = FastAPI(title="Degree Difference API")
 
 # Enable CORS
 app.add_middleware(
@@ -20,6 +20,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(sync_router)
 app.include_router(banner_router)
+app.include_router(locations_router)
 
 @app.get("/")
 async def root():

@@ -4,6 +4,7 @@ import Hero from "@/components/home/hero"
 import OutcomeSection from "@/components/home/outcome-section"
 import PromoBanner from "@/components/home/promo-banner"
 import ListingTable from "@/components/home/listing-table"
+import ExploreSection from "@/components/home/explore-section"
 import ReviewSection from "@/components/college/review-section"
 import { useState } from "react"
 import AuthModal from "@/components/auth/auth-modal"
@@ -11,6 +12,8 @@ import { Search } from "lucide-react"
 
 export default function Home() {
     const [isAuthOpen, setIsAuthOpen] = useState(false)
+    const [activeCategory, setActiveCategory] = useState('Engineering')
+    const [globalSearch, setGlobalSearch] = useState('')
 
     // Demo reviews data
     const demoReviews = [
@@ -26,7 +29,10 @@ export default function Home() {
 
     return (
         <main className="flex min-h-screen flex-col bg-slate-50">
-            <Hero />
+            <Hero 
+                onGoalSelect={(goal) => setActiveCategory(goal)} 
+                onSearchChange={(search) => setGlobalSearch(search)}
+            />
             
             <OutcomeSection />
 
@@ -38,7 +44,10 @@ export default function Home() {
                 bgImage="https://images.unsplash.com/photo-1540317580384-e5d43616b9aa?auto=format&fit=crop&q=80&w=1200"
             />
 
-            <ListingTable />
+            <ListingTable 
+                initialCategory={activeCategory} 
+                externalSearch={globalSearch}
+            />
 
             <PromoBanner 
                 type="alert"
