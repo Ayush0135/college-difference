@@ -1,10 +1,13 @@
 'use client'
 
-import { Search, Grid, Bell, User, GraduationCap } from 'lucide-react'
+import { Search, Grid, Bell, User, GraduationCap, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import GoalCitySelector from './goal-city-selector'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Navbar() {
+    const { user, openAuthModal, logout } = useAuth()
+
     return (
         <header className="absolute top-0 left-0 w-full z-50 bg-black/30 backdrop-blur-sm border-b border-white/10">
             {/* Top Bar */}
@@ -30,7 +33,7 @@ export default function Navbar() {
                         <input 
                             type="text" 
                             placeholder="Search for Colleges, Exams, Courses and More.." 
-                            className="w-full bg-white rounded-md py-2.5 pl-12 pr-4 text-sm outline-none"
+                            className="w-full bg-white rounded-md py-2.5 pl-12 pr-4 text-sm outline-none text-secondary"
                         />
                     </div>
                 </div>
@@ -43,9 +46,27 @@ export default function Navbar() {
 
                     <Bell size={20} className="cursor-pointer" />
                     
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer">
-                        <User size={18} />
-                    </div>
+                    {user ? (
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
+                                <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs">
+                                    {user.email.charAt(0).toUpperCase()}
+                                </span>
+                                <span className="font-medium text-xs truncate max-w-[100px]">{user.email.split('@')[0]}</span>
+                            </div>
+                            <button onClick={logout} className="text-white/60 hover:text-red-400 transition-colors">
+                                <LogOut size={18} />
+                            </button>
+                        </div>
+                    ) : (
+                        <button 
+                            onClick={openAuthModal}
+                            className="bg-emerald-500 hover:bg-emerald-600 px-5 py-2 rounded-full transition-colors flex items-center gap-2 text-white shadow-lg shadow-emerald-500/20"
+                        >
+                            <User size={16} />
+                            <span>Sign In</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </header>

@@ -2,21 +2,11 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, ExternalLink, ShieldCheck, Clock, TrendingUp, X, CheckCircle2, Zap } from 'lucide-react'
+import { Search, MapPin, ExternalLink, ShieldCheck, Clock, TrendingUp, X, CheckCircle2, Zap, ArrowRight, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 
 const categories = ['Engineering', 'Management', 'Medical', 'Law', 'Commerce']
-
-const colleges = [
-    { rank: 1, name: 'Parul University', stream: 'Engineering', logo: 'PU', agency: 'NAAC A++', cutoff: '85.0', deadline: 'July 15', fees: '1.5L', location: 'Vadodara, Gujarat', description: 'Ranked among top private universities with 100+ global partnerships.' },
-    { rank: 2, name: 'MMU Mullana', stream: 'Engineering', logo: 'MMU', agency: 'NIRF', cutoff: '82.5', deadline: 'June 30', fees: '1.4L', location: 'Mullana, Haryana', description: 'Leading institution in North India with strong placement records.' },
-    { rank: 3, name: 'JECRC University', stream: 'Engineering', logo: 'JU', agency: 'UGC', cutoff: '88.0', deadline: 'June 15', fees: '2.7L', location: 'Jaipur, Rajasthan', description: 'Known for innovation-led education and excellent industry interface.' },
-    { rank: 4, name: 'Noida International University', stream: 'Management', logo: 'NIU', agency: 'NAAC', cutoff: '80.0', deadline: 'July 10', fees: '4.0L', location: 'Greater Noida, UP', description: 'Global standards of education with world-class infrastructure.' },
-    { rank: 5, name: 'Marwadi University', stream: 'Management', logo: 'MU', agency: 'NAAC A+', cutoff: '84.0', deadline: 'June 25', fees: '1.3L', location: 'Rajkot, Gujarat', description: 'Emphasis on entrepreneurship and skill-based learning.' },
-    { rank: 6, name: 'Jagannath University', stream: 'Law', logo: 'JN', agency: 'ICAR', cutoff: '78.5', deadline: 'July 05', fees: '1.2L', location: 'Jaipur, Rajasthan', description: 'Comprehensive legal education with focus on clinical legal training.' },
-    { rank: 7, name: 'Tamilnadu College of Engineering', stream: 'Engineering', logo: 'TCE', agency: 'Anna Univ', cutoff: '85.5', deadline: 'June 20', fees: '0.6L', location: 'Coimbatore, TN', description: 'Established legacy of technical excellence in South India.' },
-    { rank: 8, name: 'Desh Bhagat University', stream: 'Medical', logo: 'DBU', agency: 'NAAC', cutoff: '75.0', deadline: 'Aug 15', fees: '1.0L', location: 'Punjab', description: 'Premier medical and healthcare education center.' },
-]
 
 export default function ListingTable({ 
     initialCategory = 'Engineering', 
@@ -25,9 +15,27 @@ export default function ListingTable({
     initialCategory?: string, 
     externalSearch?: string 
 }) {
+    const [colleges, setColleges] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
     const [activeCategory, setActiveCategory] = useState(initialCategory)
     const [search, setSearch] = useState(externalSearch)
     const [selectedCollege, setSelectedCollege] = useState<any>(null)
+    const router = useRouter()
+
+    // Fetch colleges
+    useEffect(() => {
+        setLoading(true)
+        fetch(`http://localhost:8000/colleges?goal=${activeCategory}&search=${search}`)
+            .then(res => res.json())
+            .then(data => {
+                setColleges(data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error('Fetch error:', err)
+                setLoading(false)
+            })
+    }, [activeCategory, search])
 
     // Sync from external props
     useEffect(() => {
@@ -38,12 +46,7 @@ export default function ListingTable({
         setSearch(externalSearch)
     }, [externalSearch])
 
-    const filteredColleges = useMemo(() => {
-        return colleges.filter(c => 
-            c.stream === activeCategory && 
-            c.name.toLowerCase().includes(search.toLowerCase())
-        )
-    }, [activeCategory, search])
+    const filteredColleges = colleges // The API already filters for us
 
     return (
         <section className="py-24 bg-slate-50 relative overflow-hidden">
@@ -88,7 +91,14 @@ export default function ListingTable({
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative min-h-[400px]">
+                    {loading && (
+                        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-4">
+                            <Loader2 className="animate-spin text-primary" size={40} />
+                            <p className="text-secondary font-black italic">Cataloging institutions...</p>
+                        </div>
+                    )}
+                    
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-slate-50/50 border-b border-slate-100">
@@ -107,7 +117,7 @@ export default function ListingTable({
                                         layout
                                         key={college.name}
                                         className="group hover:bg-slate-50/50 transition-colors cursor-pointer"
-                                        onClick={() => setSelectedCollege(college)}
+                                        onClick={() => router.push(`/colleges/${college.slug}`)}
                                     >
                                         <td className="px-8 py-8">
                                             <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-black text-secondary group-hover:bg-primary group-hover:text-white transition-all">
@@ -152,12 +162,28 @@ export default function ListingTable({
                                             </div>
                                         </td>
                                         <td className="px-4 py-8 text-right">
-                                            <button className="bg-slate-100 text-secondary hover:bg-primary hover:text-white px-6 py-3 rounded-xl text-sm font-black transition-all flex items-center gap-2 ml-auto">
-                                                View Details
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    router.push(`/colleges/${college.slug}`)
+                                                }}
+                                                className="bg-slate-100 text-secondary hover:bg-primary hover:text-white px-6 py-3 rounded-xl text-sm font-black transition-all flex items-center gap-2 ml-auto"
+                                            >
+                                                View Details <ArrowRight size={16} />
                                             </button>
                                         </td>
                                     </motion.tr>
                                 ))}
+                                {filteredColleges.length === 0 && !loading && (
+                                    <tr>
+                                        <td colSpan={6} className="px-8 py-24 text-center">
+                                            <div className="flex flex-col items-center gap-4">
+                                                <Search size={48} className="text-slate-200" />
+                                                <p className="text-slate-400 font-bold italic text-xl">No institutions matching "{search}" found.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

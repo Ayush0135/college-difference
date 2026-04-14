@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, MapPin, X, Check, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { INDIAN_CITIES, STUDY_GOALS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 export default function GoalCitySelector() {
@@ -12,9 +11,35 @@ export default function GoalCitySelector() {
     const [selectedCity, setSelectedCity] = useState('Select City')
     const [selectedGoal, setSelectedGoal] = useState('Select Goal')
     const [step, setStep] = useState<'goal' | 'city'>('goal')
+    
+    // DB state
+    const [goals, setGoals] = useState<string[]>([])
+    const [cities, setCities] = useState<string[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [gRes, cRes] = await Promise.all([
+                    fetch('http://localhost:8000/locations/goals'),
+                    fetch('http://localhost:8000/locations/cities')
+                ])
+                const gData = await gRes.json()
+                const cData = await cRes.json()
+                setGoals(gData.map((g: any) => g.name))
+                setCities(cData.map((c: any) => c.name))
+            } catch (err) {
+                console.error('Failed to fetch selector data:', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [])
+
     const containerRef = useRef<HTMLDivElement>(null)
 
-    const filteredCities = INDIAN_CITIES.filter(city => 
+    const filteredCities = cities.filter(city => 
         city.toLowerCase().includes(search.toLowerCase())
     )
 
@@ -104,21 +129,25 @@ export default function GoalCitySelector() {
                         <div className="p-4">
                             {step === 'goal' ? (
                                 <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto custom-scrollbar">
-                                    {STUDY_GOALS.map(goal => (
-                                        <button 
-                                            key={goal}
-                                            onClick={() => handleSelectGoal(goal)}
-                                            className={cn(
-                                                "p-3 rounded-xl border text-sm font-medium transition-all text-left flex justify-between items-center group",
-                                                selectedGoal === goal 
-                                                    ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" 
-                                                    : "bg-white/5 border-white/5 text-white/70 hover:bg-white/10 hover:border-white/20"
-                                            )}
-                                        >
-                                            {goal}
-                                            {selectedGoal === goal && <Check size={14} />}
-                                        </button>
-                                    ))}
+                                    {loading ? (
+                                        <div className="col-span-2 py-8 text-center text-white/20 italic text-xs">Loading goals...</div>
+                                    ) : (
+                                        goals.map(goal => (
+                                            <button 
+                                                key={goal}
+                                                onClick={() => handleSelectGoal(goal)}
+                                                className={cn(
+                                                    "p-3 rounded-xl border text-sm font-medium transition-all text-left flex justify-between items-center group",
+                                                    selectedGoal === goal 
+                                                        ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" 
+                                                        : "bg-white/5 border-white/5 text-white/70 hover:bg-white/10 hover:border-white/20"
+                                                )}
+                                            >
+                                                {goal}
+                                                {selectedGoal === goal && <Check size={14} />}
+                                            </button>
+                                        ))
+                                    )}
                                 </div>
                             ) : (
                                 <div className="space-y-4">

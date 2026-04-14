@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, ChevronRight, BookOpen, Briefcase, Landmark, Palette, GraduationCap } from 'lucide-react'
+import { Search, ChevronRight, BookOpen, Briefcase, Landmark, Palette, GraduationCap, MapPin } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -30,6 +30,8 @@ const TrendingExams = [
     { name: 'CLAT', count: '800+ Colleges', sub: 'Law' },
 ]
 
+import { useRouter } from 'next/navigation'
+
 export default function Hero({ 
     onGoalSelect, 
     onSearchChange 
@@ -38,6 +40,9 @@ export default function Hero({
     onSearchChange: (search: string) => void 
 }) {
     const [currentSlide, setCurrentSlide] = useState(0)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [suggestions, setSuggestions] = useState<any[]>([])
+    const router = useRouter()
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -45,6 +50,26 @@ export default function Hero({
         }, 5000)
         return () => clearInterval(timer)
     }, [])
+
+    useEffect(() => {
+        if (searchQuery.length > 2) {
+            fetch(`http://localhost:8000/colleges?search=${searchQuery}`)
+                .then(res => res.json())
+                .then(data => setSuggestions(data.slice(0, 5)))
+                .catch(err => console.error('Search error:', err))
+        } else {
+            setSuggestions([])
+        }
+    }, [searchQuery])
+
+    const handleSearchInput = (val: string) => {
+        setSearchQuery(val)
+        onSearchChange(val)
+    }
+
+    const handleSuggestionClick = (slug: string) => {
+        router.push(`/colleges/${slug}`)
+    }
 
     return (
         <div className="relative">
@@ -71,11 +96,13 @@ export default function Hero({
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6"
+                        className="space-y-6 flex flex-col items-center"
                     >
-                        <span className="text-emerald-400 font-bold tracking-[0.3em] uppercase text-xs bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20 backdrop-blur-md">
-                            Academic Excellence & Discovery
-                        </span>
+                        <div className="flex items-center justify-center mb-2">
+                            <span className="inline-block text-emerald-400 font-bold tracking-[0.3em] uppercase text-xs bg-emerald-400/10 px-5 py-2.5 rounded-full border border-emerald-400/20 backdrop-blur-md">
+                                Academic Excellence & Discovery
+                            </span>
+                        </div>
                         <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none">
                             Find Your Future <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">Education</span> in India
@@ -83,21 +110,63 @@ export default function Hero({
                     </motion.div>
 
                     {/* Industrial Search Bar */}
-                    <div className="max-w-4xl mx-auto w-full">
+                    <div className="max-w-4xl mx-auto w-full relative">
                         <div className="flex bg-white rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-1.5 focus-within:ring-4 focus-within:ring-primary/20 transition-all">
                             <div className="flex-1 flex items-center px-6 py-2">
                                 <Search className="text-slate-400 mr-4" size={24} />
                                 <input 
                                     type="text" 
                                     placeholder="Search for colleges, exams, courses and more.." 
-                                    onChange={(e) => onSearchChange(e.target.value)}
+                                    value={searchQuery}
+                                    onChange={(e) => handleSearchInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && suggestions.length > 0) {
+                                            handleSuggestionClick(suggestions[0].slug)
+                                        }
+                                    }}
                                     className="w-full outline-none text-lg text-secondary placeholder:text-slate-400 font-medium"
                                 />
                             </div>
-                            <button className="bg-primary hover:bg-primary/90 text-white font-black text-lg px-12 py-5 rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-primary/30 active:scale-95">
+                            <button 
+                                onClick={() => suggestions.length > 0 && handleSuggestionClick(suggestions[0].slug)}
+                                className="bg-primary hover:bg-primary/90 text-white font-black text-lg px-12 py-5 rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-primary/30 active:scale-95"
+                            >
                                 Search
                             </button>
                         </div>
+
+                        {/* Suggestions Dropdown */}
+                        <AnimatePresence>
+                            {suggestions.length > 0 && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 p-2"
+                                >
+                                    {suggestions.map((item) => (
+                                        <div 
+                                            key={item.id}
+                                            onClick={() => handleSuggestionClick(item.slug)}
+                                            className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group"
+                                        >
+                                            <div className="w-12 h-12 rounded-lg bg-slate-900 flex items-center justify-center text-white font-black text-xs shrink-0">
+                                                {item.logo || item.name.charAt(0)}
+                                            </div>
+                                            <div className="flex-1 text-left">
+                                                <div className="font-black text-secondary group-hover:text-primary transition-colors">{item.name}</div>
+                                                <div className="flex items-center gap-2 text-xs text-slate-400 font-bold">
+                                                    <MapPin size={12} className="text-primary" /> {item.location}
+                                                </div>
+                                            </div>
+                                            <div className="text-primary font-bold text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                View Profile <ChevronRight size={14} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                         
                         <div className="flex flex-wrap items-center justify-center gap-8 mt-10">
                             {[

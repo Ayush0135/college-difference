@@ -6,7 +6,7 @@ import PromoBanner from "@/components/home/promo-banner"
 import ListingTable from "@/components/home/listing-table"
 import ExploreSection from "@/components/home/explore-section"
 import ReviewSection from "@/components/college/review-section"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import AuthModal from "@/components/auth/auth-modal"
 import { Search } from "lucide-react"
 
@@ -14,6 +14,19 @@ export default function Home() {
     const [isAuthOpen, setIsAuthOpen] = useState(false)
     const [activeCategory, setActiveCategory] = useState('Engineering')
     const [globalSearch, setGlobalSearch] = useState('')
+    const resultsRef = useRef<HTMLDivElement>(null)
+
+    const handleGoalSelect = (goal: string) => {
+        setActiveCategory(goal)
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    const handleSearchChange = (search: string) => {
+        setGlobalSearch(search)
+        if (search.length > 2) {
+            resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
+        }
+    }
 
     // Demo reviews data
     const demoReviews = [
@@ -30,11 +43,16 @@ export default function Home() {
     return (
         <main className="flex min-h-screen flex-col bg-slate-50">
             <Hero 
-                onGoalSelect={(goal) => setActiveCategory(goal)} 
-                onSearchChange={(search) => setGlobalSearch(search)}
+                onGoalSelect={handleGoalSelect} 
+                onSearchChange={handleSearchChange}
             />
             
-            <OutcomeSection />
+            <div ref={resultsRef}>
+                <ListingTable 
+                    initialCategory={activeCategory} 
+                    externalSearch={globalSearch}
+                />
+            </div>
 
             <PromoBanner 
                 type="fair"
@@ -43,11 +61,8 @@ export default function Home() {
                 ctaText="Register Now"
                 bgImage="https://images.unsplash.com/photo-1540317580384-e5d43616b9aa?auto=format&fit=crop&q=80&w=1200"
             />
-
-            <ListingTable 
-                initialCategory={activeCategory} 
-                externalSearch={globalSearch}
-            />
+            
+            <OutcomeSection />
 
             <PromoBanner 
                 type="alert"
