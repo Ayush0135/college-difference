@@ -13,7 +13,7 @@ export default function CounsellingTracker() {
     const fetchRequests = async () => {
         setLoading(true)
         try {
-            const res = await fetch('http://localhost:8000/admin/counselling', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/counselling`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()

@@ -59,7 +59,7 @@ export default function Hero({
 
     useEffect(() => {
         if (searchQuery.length > 2) {
-            fetch(`http://localhost:8000/colleges?search=${searchQuery}`)
+            fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges?search=${searchQuery}`)
                 .then(res => res.json())
                 .then(data => setSuggestions(data.slice(0, 5)))
                 .catch(err => console.error('Search error:', err))

@@ -26,7 +26,7 @@ export default function StudyApplicationModal({
         e.preventDefault()
         setLoading(true)
         try {
-            const res = await fetch('http://localhost:8000/study-applications', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/study-applications`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -30,7 +30,7 @@ export default function CollegeDetailPage() {
 
     useEffect(() => {
         if (slug) {
-            fetch(`http://localhost:8000/colleges/${slug}`)
+            fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges/${slug}`)
                 .then(res => res.json())
                 .then(data => {
                     setCollege(data)

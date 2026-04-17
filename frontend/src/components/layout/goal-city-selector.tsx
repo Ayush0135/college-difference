@@ -25,8 +25,8 @@ export default function GoalCitySelector() {
         const fetchData = async () => {
             try {
                 const [gRes, cRes] = await Promise.all([
-                    fetch('http://localhost:8000/locations/goals'),
-                    fetch('http://localhost:8000/locations/cities')
+                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`),
+                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`)
                 ])
                 const gData = await gRes.json()
                 const cData = await cRes.json()
@@ -73,7 +73,7 @@ export default function GoalCitySelector() {
 
         // Persist to database
         try {
-            await fetch('http://localhost:8000/locations/save-preference', {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/save-preference`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

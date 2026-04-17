@@ -25,7 +25,7 @@ function TeamAccess() {
         e.preventDefault()
         setStatus("Authorizing...")
         try {
-            const res = await fetch('http://localhost:8000/admin/team', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/team`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ email })
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
 
     const refreshStats = () => {
         if (!token || user?.role !== 'admin') return
-        fetch('http://localhost:8000/admin/stats', {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/stats`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
         e.preventDefault()
         setAuthLoading(true); setAuthError('')
         try {
-            const res = await fetch('http://localhost:8000/admin/auth/send-otp', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/auth/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: authEmail })
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
         e.preventDefault()
         setAuthLoading(true); setAuthError('')
         try {
-            const res = await fetch('http://localhost:8000/admin/auth/verify-otp', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: authEmail, code: authOtp })

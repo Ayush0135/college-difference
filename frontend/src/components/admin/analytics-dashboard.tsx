@@ -15,7 +15,7 @@ export default function AnalyticsDashboard() {
             try {
                 // In a real app, you'd have a specific analytics endpoint
                 // For now, we'll derive some stats from the leads we have
-                const res = await fetch('http://localhost:8000/admin/leads', {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/leads`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
                 const leads = await res.json()

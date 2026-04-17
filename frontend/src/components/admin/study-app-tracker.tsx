@@ -14,7 +14,7 @@ export default function StudyAppTracker() {
     const fetchApps = async () => {
         setLoading(true)
         try {
-            const res = await fetch('http://localhost:8000/admin/study-applications', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/study-applications`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()

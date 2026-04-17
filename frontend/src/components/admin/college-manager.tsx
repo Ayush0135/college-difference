@@ -15,7 +15,7 @@ export default function CollegeManager({ onEdit }: { onEdit: (college: any) => v
     const handleEdit = async (slug: string) => {
         setEditSyncLoading(slug)
         try {
-            const res = await fetch(`http://localhost:8000/colleges/${slug}`)
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges/${slug}`)
             const data = await res.json()
             onEdit(data)
         } catch (err) {
@@ -28,7 +28,7 @@ export default function CollegeManager({ onEdit }: { onEdit: (college: any) => v
     const fetchColleges = async () => {
         setLoading(true)
         try {
-            const res = await fetch('http://localhost:8000/colleges', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()

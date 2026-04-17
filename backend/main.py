@@ -35,7 +35,7 @@ app.include_router(leads_router)
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "message": "College Discovery Platform API is running"}
+    return {"status": "ok", "message": "Degree Difference API (Edge)"}
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Note: Cloudflare Workers handle the server execution. 
+# You don't need a if __name__ == "__main__": block here.

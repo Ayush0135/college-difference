@@ -53,7 +53,7 @@ export default function ApplyModal({ isOpen, onClose, collegeId, collegeName }: 
         
         try {
             const finalDegree = formData.degree === 'Other' ? formData.otherDegree : formData.degree;
-            const res = await fetch('http://localhost:8000/leads', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/leads`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

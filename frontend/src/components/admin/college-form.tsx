@@ -102,8 +102,8 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
         setLoading(true)
         try {
             const url = initialData 
-                ? `http://localhost:8000/admin/colleges/${initialData.id}`
-                : 'http://localhost:8000/admin/colleges'
+                ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/colleges/${initialData.id}`
+                : `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/colleges`
             
             const method = initialData ? 'PATCH' : 'POST'
 
