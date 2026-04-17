@@ -4,12 +4,16 @@ import { useState, useEffect, useRef } from 'react'
 import { Search, MapPin, X, Check, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function GoalCitySelector() {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    
     const [isOpen, setIsOpen] = useState(false)
     const [search, setSearch] = useState('')
-    const [selectedCity, setSelectedCity] = useState('Select City')
-    const [selectedGoal, setSelectedGoal] = useState('Select Goal')
+    const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || 'Select City')
+    const [selectedGoal, setSelectedGoal] = useState(searchParams.get('goal') || 'Select Goal')
     const [step, setStep] = useState<'goal' | 'city'>('goal')
     
     // DB state
@@ -53,11 +57,19 @@ export default function GoalCitySelector() {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
+    const updateUrl = (goal: string, city: string) => {
+        const params = new URLSearchParams(searchParams.toString())
+        if (goal && goal !== 'Select Goal') params.set('goal', goal)
+        if (city && city !== 'Select City') params.set('city', city)
+        router.push(`/?${params.toString()}`)
+    }
+
     const handleSelectCity = async (city: string) => {
         setSelectedCity(city)
         setIsOpen(false)
         setSearch('')
         localStorage.setItem('user_city', city)
+        updateUrl(selectedGoal, city)
 
         // Persist to database
         try {
@@ -79,6 +91,7 @@ export default function GoalCitySelector() {
         setSelectedGoal(goal)
         setStep('city')
         localStorage.setItem('user_goal', goal)
+        updateUrl(goal, selectedCity)
     }
 
     return (

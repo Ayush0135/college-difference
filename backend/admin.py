@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Securit
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from supabase import create_client, Client
-from typing import List
+from typing import List, Optional, Union
 
 router = APIRouter(prefix="/admin")
 security = HTTPBearer()
@@ -31,15 +31,19 @@ async def get_stats(user: dict = Depends(get_admin_user)):
     if not supabase: return {"error": "DB not configured"}
     try:
         colleges = supabase.table("colleges").select("id", count="exact").execute()
-        leads = supabase.table("leads").select("id", count="exact").execute()
-        pending_reviews = supabase.table("reviews").select("id", count="exact").eq("is_verified", False).execute()
-        verified_colleges = supabase.table("colleges").select("id", count="exact").neq("status", "draft").execute()
+        new_leads = supabase.table("leads").select("id", count="exact").eq("status", "new").execute()
+        resolved_leads = supabase.table("leads").select("id", count="exact").neq("status", "new").execute()
+        
+        new_counselling = supabase.table("counselling_requests").select("id", count="exact").eq("status", "new").execute()
+        new_study_apps = supabase.table("study_applications").select("id", count="exact").eq("status", "new").execute()
         
         return {
             "total_colleges": colleges.count,
-            "new_leads": leads.count,
-            "pending_reviews": pending_reviews.count,
-            "verified_colleges": verified_colleges.count
+            "new_leads": new_leads.count,
+            "new_counselling": new_counselling.count,
+            "new_study_apps": new_study_apps.count,
+            "resolved_requests": resolved_leads.count,
+            "verified_colleges": colleges.count # Fallback or keep as requested
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -55,11 +59,11 @@ async def get_leads(user: dict = Depends(get_admin_user)):
     res = supabase.table("leads").select("*, colleges(name)").order("created_at", desc=True).execute()
     return res.data
 
-@router.patch("/leads/{lead_id}/status")
-async def update_lead_status(lead_id: str, payload: LeadUpdate, user: dict = Depends(get_admin_user)):
+@router.patch("/leads/{lead_id}")
+async def update_lead_status(lead_id: str, status: str, user: dict = Depends(get_admin_user)):
     if not supabase: return {"error": "DB not configured"}
-    res = supabase.table("leads").update({"status": payload.status}).eq("id", lead_id).execute()
-    return res.data
+    res = supabase.table("leads").update({"status": status}).eq("id", lead_id).execute()
+    return {"success": True}
 
 
 # --- 3. Review Moderation Queue ---
@@ -137,3 +141,189 @@ async def authorize_team_member(payload: TeamAuthRequest, user: dict = Depends(g
         supabase.table("profiles").update({"role": "admin"}).eq("email", payload.email).execute()
         
     return {"success": True, "message": f"Successfully authorized {payload.email} as Admin"}
+# --- 6. Individual College Management ---
+class CourseCreate(BaseModel):
+    name: str
+    duration: Optional[str] = None
+    seats: Optional[Union[str, int]] = None
+    eligibility: Optional[str] = None
+    total_year_1: Optional[str] = None
+
+class ReviewCreate(BaseModel):
+    rating: int
+    comment: str
+    pros: Optional[str] = None
+    cons: Optional[str] = None
+
+class HostelCreate(BaseModel):
+    room_type: str
+    fee: str
+    description: Optional[str] = None
+    is_ac: bool = False
+
+class CollegeCreate(BaseModel):
+    name: str
+    slug: str
+    location: str
+    nirf_rank: Optional[Union[str, int]] = None
+    accreditation: Optional[str] = None
+    stream: str
+    cutoff: Optional[str] = None
+    deadline: Optional[str] = None
+    description: str
+    brochure_url: Optional[str] = None
+    # New Placement Fields
+    avg_package: Optional[str] = None
+    highest_package: Optional[str] = None
+    median_package: Optional[str] = None
+    placement_highlights: List[str] = []
+    # Nested Entities
+    courses: List[CourseCreate] = []
+    reviews: List[ReviewCreate] = []
+    hostels: List[HostelCreate] = []
+
+@router.post("/colleges")
+async def create_college(payload: CollegeCreate, user: dict = Depends(get_admin_user)):
+    if not supabase: return {"error": "DB not configured"}
+    try:
+        # 1. Create College
+        college_res = supabase.table("colleges").insert({
+            "name": payload.name,
+            "slug": payload.slug,
+            "location": payload.location,
+            "nirf_rank": int(payload.nirf_rank) if payload.nirf_rank and str(payload.nirf_rank).isdigit() else None,
+            "rank": int(payload.nirf_rank) if payload.nirf_rank and str(payload.nirf_rank).isdigit() else None,
+            "accreditation": payload.accreditation,
+            "stream": payload.stream,
+            "cutoff": payload.cutoff,
+            "deadline": payload.deadline,
+            "description": payload.description,
+            "brochure_url": payload.brochure_url,
+            "avg_package": payload.avg_package,
+            "highest_package": payload.highest_package,
+            "median_package": payload.median_package,
+            "placement_highlights": payload.placement_highlights,
+            "status": "published"
+        }).execute()
+        
+        if not college_res.data:
+            raise HTTPException(status_code=500, detail="Failed to create college profile.")
+            
+        college_id = college_res.data[0]["id"]
+        
+        # 2. Batch Create Courses
+        course_data = []
+        for course in payload.courses:
+            if course.name:
+                course_data.append({
+                    "college_id": college_id,
+                    "name": course.name,
+                    "duration": course.duration,
+                    "seats": int(course.seats) if course.seats and str(course.seats).isdigit() else 60,
+                    "fees": course.total_year_1,
+                    "eligibility": course.eligibility
+                })
+        
+        if course_data:
+            supabase.table("courses").insert(course_data).execute()
+        
+        # 3. Batch Create Reviews
+        review_data = []
+        for review in payload.reviews:
+            if review.comment:
+                review_data.append({
+                    "college_id": college_id,
+                    "rating": review.rating,
+                    "comment": review.comment,
+                    "pros": review.pros.split(',') if isinstance(review.pros, str) else review.pros,
+                    "cons": review.cons.split(',') if isinstance(review.cons, str) else review.cons,
+                    "is_verified": True
+                })
+        
+        if review_data:
+            supabase.table("reviews").insert(review_data).execute()
+
+        # 4. Batch Create Hostels
+        hostel_data = []
+        for hostel in payload.hostels:
+            if hostel.room_type:
+                hostel_data.append({
+                    "college_id": college_id,
+                    "room_type": hostel.room_type,
+                    "fee": hostel.fee,
+                    "description": hostel.description,
+                    "is_ac": hostel.is_ac
+                })
+        
+        if hostel_data:
+            supabase.table("hostels").insert(hostel_data).execute()
+                
+        return {"success": True, "slug": payload.slug}
+    except Exception as e:
+        print(f"Error Creating College: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.patch("/colleges/{college_id}")
+async def update_college(college_id: str, payload: CollegeCreate, user: dict = Depends(get_admin_user)):
+    if not supabase: return {"error": "DB not configured"}
+    try:
+        # 1. Update College Base Info
+        supabase.table("colleges").update({
+            "name": payload.name,
+            "location": payload.location,
+            "nirf_rank": int(payload.nirf_rank) if payload.nirf_rank and str(payload.nirf_rank).isdigit() else None,
+            "rank": int(payload.nirf_rank) if payload.nirf_rank and str(payload.nirf_rank).isdigit() else None,
+            "accreditation": payload.accreditation,
+            "stream": payload.stream,
+            "cutoff": payload.cutoff,
+            "deadline": payload.deadline,
+            "description": payload.description,
+            "brochure_url": payload.brochure_url,
+            "avg_package": payload.avg_package,
+            "highest_package": payload.highest_package,
+            "median_package": payload.median_package,
+            "placement_highlights": payload.placement_highlights
+        }).eq("id", college_id).execute()
+
+        # 2. Reset and Re-insert Courses
+        supabase.table("courses").delete().eq("college_id", college_id).execute()
+        course_data = [{
+            "college_id": college_id,
+            "name": c.name,
+            "duration": c.duration,
+            "seats": int(c.seats) if c.seats and str(c.seats).isdigit() else 60,
+            "fees": c.total_year_1,
+            "eligibility": c.eligibility
+        } for c in payload.courses if c.name]
+        if course_data:
+            supabase.table("courses").insert(course_data).execute()
+
+        # 3. Reset and Re-insert Hostels
+        supabase.table("hostels").delete().eq("college_id", college_id).execute()
+        hostel_data = [{
+            "college_id": college_id,
+            "room_type": h.room_type,
+            "fee": h.fee,
+            "description": h.description,
+            "is_ac": h.is_ac
+        } for h in payload.hostels if h.room_type]
+        if hostel_data:
+            supabase.table("hostels").insert(hostel_data).execute()
+        
+        # 4. Reset and Re-insert Reviews
+        supabase.table("reviews").delete().eq("college_id", college_id).execute()
+        review_data = [{
+            "college_id": college_id,
+            "rating": r.rating,
+            "comment": r.comment,
+            "pros": r.pros.split(',') if r.pros else [],
+            "cons": r.cons.split(',') if r.cons else [],
+            "is_verified": True
+        } for r in payload.reviews if r.comment]
+        if review_data:
+            supabase.table("reviews").insert(review_data).execute()
+
+        return {"success": True}
+    except Exception as e:
+        print(f"Error Updating College: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

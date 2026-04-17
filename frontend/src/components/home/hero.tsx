@@ -17,10 +17,10 @@ const StudyGoals = [
 ]
 
 const PopularCities = [
-    { name: 'Delhi NCR', count: '850+ Colleges', sub: 'Hub of Education' },
-    { name: 'Bengaluru', count: '600+ Colleges', sub: 'Tech & Innovation' },
-    { name: 'Mumbai', count: '500+ Colleges', sub: 'Financial Capital' },
-    { name: 'Pune', count: '450+ Colleges', sub: 'Oxford of East' },
+    { name: 'Delhi NCR', count: '850+ Colleges', sub: 'HUB OF EDUCATION' },
+    { name: 'Bengaluru', count: '600+ Colleges', sub: 'TECH & INNOVATION' },
+    { name: 'Mumbai', count: '500+ Colleges', sub: 'FINANCIAL CAPITAL' },
+    { name: 'Pune', count: '450+ Colleges', sub: 'OXFORD OF EAST' },
 ]
 
 const TrendingExams = [
@@ -34,10 +34,16 @@ import { useRouter } from 'next/navigation'
 
 export default function Hero({ 
     onGoalSelect, 
-    onSearchChange 
+    onCitySelect,
+    onSearchChange,
+    hideNavigator = false,
+    hideHubs = false
 }: { 
     onGoalSelect: (goal: string) => void, 
-    onSearchChange: (search: string) => void 
+    onCitySelect: (city: string) => void,
+    onSearchChange: (search: string) => void,
+    hideNavigator?: boolean,
+    hideHubs?: boolean
 }) {
     const [currentSlide, setCurrentSlide] = useState(0)
     const [searchQuery, setSearchQuery] = useState('')
@@ -109,8 +115,37 @@ export default function Hero({
                         </h1>
                     </motion.div>
 
+                     {/* Trending Discovery Chips */}
+                     <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="flex flex-wrap items-center justify-center gap-3 mb-6 relative z-30"
+                     >
+                        <span className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] italic mr-1">Trending Discovery:</span>
+                        {[
+                            { label: 'MBA', goal: 'Management' },
+                            { label: 'B.Tech', goal: 'Engineering' },
+                            { label: 'Nursing', goal: 'Medical' },
+                            { label: 'Bengaluru', city: 'Bengaluru' }
+                        ].map((chip) => (
+                            <button 
+                                key={chip.label}
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    chip.goal ? onGoalSelect(chip.goal) : onCitySelect(chip.city!);
+                                }}
+                                className="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-white/80 text-[10px] font-black hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95 backdrop-blur-md cursor-pointer pointer-events-auto"
+                            >
+                                {chip.label}
+                            </button>
+                        ))}
+                     </motion.div>
+
                     {/* Industrial Search Bar */}
-                    <div className="max-w-4xl mx-auto w-full relative">
+                    <div className="max-w-4xl mx-auto w-full relative z-40">
                         <div className="flex bg-white rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-1.5 focus-within:ring-4 focus-within:ring-primary/20 transition-all">
                             <div className="flex-1 flex items-center px-6 py-2">
                                 <Search className="text-slate-400 mr-4" size={24} />
@@ -184,6 +219,53 @@ export default function Hero({
                 </div>
             </section>
 
+            {/* Instant Search Results Section */}
+            <AnimatePresence>
+                {searchQuery.length > 2 && suggestions.length > 0 && (
+                    <motion.section 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="bg-slate-50 border-y border-slate-200 overflow-hidden"
+                    >
+                        <div className="container mx-auto px-4 py-12">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-2xl font-black text-secondary">
+                                    Top Results for <span className="text-primary">"{searchQuery}"</span>
+                                </h3>
+                                <div className="text-slate-400 text-sm font-bold uppercase tracking-widest">
+                                    {suggestions.length} Institutions Found
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {suggestions.map((item) => (
+                                    <motion.div 
+                                        key={item.id}
+                                        onClick={() => handleSuggestionClick(item.slug)}
+                                        whileHover={{ y: -5 }}
+                                        className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-5 cursor-pointer hover:shadow-xl transition-all group"
+                                    >
+                                        <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-white font-black text-xs shrink-0 group-hover:scale-110 transition-transform">
+                                            {item.logo || item.name.charAt(0)}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="font-black text-secondary group-hover:text-primary transition-colors line-clamp-1">{item.name}</div>
+                                            <div className="flex items-center gap-2 text-xs text-slate-400 font-bold mt-1">
+                                                <MapPin size={12} className="text-primary" /> {item.location}
+                                            </div>
+                                            <div className="mt-3 flex items-center gap-2 text-[10px] font-black text-emerald-500 uppercase tracking-tighter">
+                                                <GraduationCap size={14} /> View Degrees
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.section>
+                )}
+            </AnimatePresence>
+
             {/* Study Goal Navigator */}
             <section className="bg-white py-24 relative z-20 rounded-t-[3rem] shadow-2xl">
                 <div className="container mx-auto px-4">
@@ -225,6 +307,34 @@ export default function Hero({
                                 </div>
                             </motion.div>
                         ))}
+                    </div>
+
+                    <div className="mt-24">
+                        <div className="flex justify-between items-end mb-12">
+                            <div>
+                                <h2 className="text-4xl font-black text-secondary uppercase tracking-tighter italic">Top <span className="text-emerald-500">Education Hubs</span></h2>
+                                <p className="text-muted-foreground mt-2 font-medium">Explore institutions in India's most vibrant academic cities.</p>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {PopularCities.map((city, i) => (
+                                <motion.div 
+                                    key={city.name}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    onClick={() => onCitySelect(city.name)}
+                                    className="p-6 bg-slate-900 rounded-[2rem] text-white hover:bg-emerald-600 transition-all cursor-pointer group relative overflow-hidden"
+                                >
+                                    <div className="relative z-10">
+                                        <h4 className="text-xl font-black italic">{city.name}</h4>
+                                        <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest mt-1">{city.sub}</p>
+                                        <div className="mt-4 text-emerald-400 group-hover:text-white font-black text-sm transition-colors">{city.count}</div>
+                                    </div>
+                                    <MapPin size={64} className="absolute -bottom-4 -right-4 text-white/5 group-hover:text-white/10 transition-colors" />
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>

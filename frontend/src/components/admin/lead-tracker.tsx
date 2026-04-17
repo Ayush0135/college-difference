@@ -1,120 +1,172 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Mail, Phone, Calendar, Download, ChevronDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useAuth } from '@/contexts/AuthContext'
+import { useState, useEffect } from "react"
+import { useAuth } from "@/contexts/AuthContext"
+import { motion } from "framer-motion"
+import { Users, Mail, Phone, Calendar, CheckCircle2, XCircle, Clock, Loader2, ArrowUpRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export default function LeadTracker() {
     const { token } = useAuth()
     const [leads, setLeads] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        if (!token) return;
-        fetch('http://localhost:8000/admin/leads', { headers: { 'Authorization': `Bearer ${token}` } })
-            .then(res => res.json())
-            .then(data => { if (!data.error && !data.detail) setLeads(data) })
-            .catch(console.error)
-    }, [token])
-
-    const updateStatus = async (id: string, newStatus: string) => {
-        await fetch(`http://localhost:8000/admin/leads/${id}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ status: newStatus })
-        })
-        setLeads(leads.map(l => l.id === id ? { ...l, status: newStatus } : l))
+    const fetchLeads = async () => {
+        setLoading(true)
+        try {
+            const res = await fetch('http://localhost:8000/admin/leads', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            const data = await res.json()
+            setLeads(data)
+        } catch (err) {
+            console.error("Failed to fetch leads:", err)
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const exportCSV = () => {
-        const headers = ["Email", "Phone", "College", "Status", "Date"]
-        const csvRows = [headers.join(",")]
-        leads.forEach(l => {
-            const row = [l.email, l.phone, l.colleges?.name || 'N/A', l.status, new Date(l.created_at).toLocaleDateString()]
-            csvRows.push(row.map(r => `"${r}"`).join(","))
-        })
-        const blob = new Blob([csvRows.join("\n")], { type: 'text/csv' })
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'leads_export.csv'
-        a.click()
+    useEffect(() => {
+        if (token) fetchLeads()
+    }, [token])
+
+    const updateStatus = async (leadId: string, newStatus: string) => {
+        try {
+            const res = await fetch(`http://localhost:8000/admin/leads/${leadId}?status=${newStatus}`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (res.ok) fetchLeads()
+        } catch (err) {
+            console.error("Failed to update lead status:", err)
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <Loader2 className="animate-spin text-primary" size={40} />
+                <p className="text-secondary font-black italic">Extracting applicant intelligence...</p>
+            </div>
+        )
     }
 
     return (
-        <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-border bg-muted/30 flex justify-between items-center">
+        <div className="space-y-6">
+            <div className="flex items-center justify-between mb-2">
                 <div>
-                    <h2 className="text-xl font-bold text-secondary">Student Inquiries (Leads)</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Manage and track student interest</p>
+                    <h2 className="text-2xl font-black text-secondary tracking-tight">Active Applications</h2>
+                    <p className="text-slate-500 text-sm font-medium">Capture and track student interest across departments.</p>
                 </div>
-                <button onClick={exportCSV} className="flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-secondary/90 transition-colors">
-                    <Download size={16} /> Export to CSV
-                </button>
+                <div className="flex gap-4">
+                    <div className="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl flex flex-col items-center">
+                        <span className="text-[10px] font-black uppercase text-slate-400">Total Leads</span>
+                        <span className="text-xl font-black text-secondary">{leads.length}</span>
+                    </div>
+                </div>
             </div>
-            
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead>
-                        <tr className="border-b border-border bg-muted/10">
-                            <th className="p-4 font-semibold text-sm">Student</th>
-                            <th className="p-4 font-semibold text-sm">Target College</th>
-                            <th className="p-4 font-semibold text-sm">Date</th>
-                            <th className="p-4 font-semibold text-sm">Status Management</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {leads.map((lead) => (
-                            <tr key={lead.id} className="border-b border-border hover:bg-muted/5 transition-colors">
-                                <td className="p-4">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-sm font-bold">{lead.email}</span>
-                                        <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
-                                            <span className="flex items-center gap-1"><Mail size={12}/> {lead.email}</span>
-                                            <span className="flex items-center gap-1"><Phone size={12}/> {lead.phone}</span>
+
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50/50 border-b border-slate-100">
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Info</th>
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Institution</th>
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Date Applied</th>
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {leads.map((lead) => (
+                                <motion.tr 
+                                    layout 
+                                    key={lead.id}
+                                    className="hover:bg-slate-50/50 transition-colors group"
+                                >
+                                    <td className="px-6 py-5">
+                                        <div className="flex flex-col">
+                                            <span className="font-black text-secondary text-base">{lead.name}</span>
+                                            <div className="flex flex-col gap-0.5 mt-1">
+                                                <span className="text-xs text-slate-400 font-bold flex items-center gap-1.5">
+                                                    <Mail size={12} className="text-primary" /> {lead.email}
+                                                </span>
+                                                <span className="text-xs text-slate-400 font-bold flex items-center gap-1.5">
+                                                    <Phone size={12} className="text-primary" /> +91 {lead.phone}
+                                                </span>
+                                                {lead.course_name && (
+                                                    <span className="text-[10px] mt-1 bg-primary/10 text-primary w-fit px-2 py-0.5 rounded font-black uppercase tracking-tighter">
+                                                        {lead.course_name}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td className="p-4">
-                                    <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20">
-                                        {lead.colleges?.name || 'N/A'}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-sm text-muted-foreground font-medium">
-                                    <div className="flex items-center gap-2">
-                                        <Calendar size={14} /> {new Date(lead.created_at).toLocaleDateString()}
-                                    </div>
-                                </td>
-                                <td className="p-4">
-                                    <div className="relative group w-fit">
-                                        <select 
-                                            value={lead.status}
-                                            onChange={(e) => updateStatus(lead.id, e.target.value)}
-                                            className={cn(
-                                                "appearance-none bg-transparent border py-1.5 pl-4 pr-8 rounded-full text-xs font-bold outline-none cursor-pointer transition-colors",
-                                                lead.status === 'new' ? "border-blue-200 text-blue-700 bg-blue-50" :
-                                                lead.status === 'contacted' ? "border-orange-200 text-orange-700 bg-orange-50" :
-                                                "border-emerald-200 text-emerald-700 bg-emerald-50"
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-[10px] font-black text-white shrink-0">
+                                                {(lead.colleges?.name || "General Counseling").charAt(0)}
+                                            </div>
+                                            <span className="font-bold text-secondary text-sm group-hover:text-primary transition-colors cursor-pointer flex items-center gap-1">
+                                                {lead.colleges?.name || "General Counseling"} <ArrowUpRight size={12} />
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <div className="flex items-center gap-2 text-slate-500 font-bold text-sm">
+                                            <Calendar size={14} className="text-slate-300" />
+                                            {new Date(lead.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <div className={cn(
+                                            "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                                            lead.status === 'new' ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                            lead.status === 'processed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                                            "bg-red-50 text-red-600 border-red-100"
+                                        )}>
+                                            {lead.status === 'new' ? <Clock size={12} /> : 
+                                             lead.status === 'processed' ? <CheckCircle2 size={12} /> : 
+                                             <XCircle size={12} />}
+                                            {lead.status}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-5 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            {lead.status === 'new' && (
+                                                <button 
+                                                    onClick={() => updateStatus(lead.id, 'processed')}
+                                                    className="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white p-2 rounded-lg transition-all"
+                                                    title="Mark as Processed"
+                                                >
+                                                    <CheckCircle2 size={18} />
+                                                </button>
                                             )}
-                                        >
-                                            <option value="new">New Lead</option>
-                                            <option value="contacted">Contacted</option>
-                                            <option value="converted">Converted</option>
-                                        </select>
-                                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {leads.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="p-8 text-center text-muted-foreground font-medium">
-                                    No leads generated yet.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                                            <button 
+                                                onClick={() => updateStatus(lead.id, 'closed')}
+                                                className="bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-500 p-2 rounded-lg transition-all"
+                                                title="Close Applicant"
+                                            >
+                                                <XCircle size={18} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </motion.tr>
+                            ))}
+                            {leads.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="py-24 text-center">
+                                        <div className="flex flex-col items-center gap-4 opacity-20">
+                                            <Users size={64} />
+                                            <p className="text-xl font-black italic">The applicant pool is currently empty.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     )

@@ -1,12 +1,18 @@
 'use client'
 
 import { useState, useEffect } from "react"
-import { Plus, MessageSquare, UploadCloud, Users, Lock, ShieldAlert } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Plus, MessageSquare, UploadCloud, Users, Lock, ShieldAlert, CheckCircle2, GraduationCap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/AuthContext"
 import CollegeForm from "@/components/admin/college-form"
 import ReviewModerator from "@/components/admin/review-moderator"
 import BulkImporter from "@/components/admin/bulk-importer"
+import LeadTracker from "@/components/admin/lead-tracker"
+import CounsellingTracker from "@/components/admin/counselling-tracker"
+import StudyAppTracker from "@/components/admin/study-app-tracker"
+import AnalyticsDashboard from "@/components/admin/analytics-dashboard"
+import CollegeManager from "@/components/admin/college-manager"
 
 function TeamAccess() {
     const { token } = useAuth()
@@ -58,7 +64,8 @@ function TeamAccess() {
 
 export default function AdminDashboard() {
     const { user, token, login } = useAuth()
-    const [view, setView] = useState<'create' | 'reviews' | 'bulk' | 'team'>('create')
+    const [view, setView] = useState<'create' | 'reviews' | 'bulk' | 'team' | 'leads' | 'colleges' | 'analytics' | 'counselling' | 'study-apps'>('study-apps')
+    const [editingCollege, setEditingCollege] = useState<any>(null)
     const [stats, setStats] = useState({
         total_colleges: 0,
         pending_reviews: 0,
@@ -72,7 +79,7 @@ export default function AdminDashboard() {
     const [authError, setAuthError] = useState('')
     const [authLoading, setAuthLoading] = useState(false)
 
-    useEffect(() => {
+    const refreshStats = () => {
         if (!token || user?.role !== 'admin') return
         fetch('http://localhost:8000/admin/stats', {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -82,6 +89,12 @@ export default function AdminDashboard() {
                 if (!data.error && !data.detail) setStats(data)
             })
             .catch(console.error)
+    }
+
+    useEffect(() => {
+        refreshStats()
+        const interval = setInterval(refreshStats, 30000) // Real-time pulse every 30s
+        return () => clearInterval(interval)
     }, [view, token, user])
 
     const handleAdminSendOtp = async (e: React.FormEvent) => {
@@ -154,69 +167,89 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto py-8 px-4">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-secondary flex items-center gap-3">
-                        Admin Dashboard
-                    </h1>
-                    <div className="flex flex-wrap gap-2 mt-3 mb-2">
-                        <span className="text-emerald-500 font-bold tracking-widest uppercase text-[10px] bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                            From IITs to IIMs
-                        </span>
-                        <span className="text-blue-500 font-bold tracking-widest uppercase text-[10px] bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                            NIRF Ranked Institutions
-                        </span>
-                        <span className="text-orange-500 font-bold tracking-widest uppercase text-[10px] bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-                            Direct Admissions
-                        </span>
-                    </div>
-                    <p className="text-muted-foreground mt-1">
-                        Discover India's Elite Universities & Colleges. Manage verified reviews, historical cutoffs, and transparent fee structures.
+        <div className="space-y-12 max-w-7xl mx-auto py-8 px-4">
+            {/* Status & Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-8 rounded-[2rem] border border-emerald-100 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform text-emerald-500"><CheckCircle2 size={64} /></div>
+                    <p className="text-secondary/60 text-xs font-black uppercase tracking-widest mb-2">Resolved Requests</p>
+                    <h3 className="text-4xl font-black text-secondary tracking-tighter italic">{(stats as any).resolved_requests || 0}+</h3>
+                    <p className="text-[10px] text-emerald-500 font-bold mt-2 flex items-center gap-1 uppercase tracking-tighter">
+                        Success Rate Optimized
                     </p>
                 </div>
-
-                <div className="flex bg-muted p-1 rounded-xl w-fit overflow-x-auto">
-                    {[
-                        { id: 'create', icon: Plus, label: 'Add College' },
-                        { id: 'reviews', icon: MessageSquare, label: 'Moderation' },
-                        { id: 'bulk', icon: UploadCloud, label: 'Bulk CSV' },
-                        { id: 'team', icon: Users, label: 'Team Access' }
-                    ].map(tab => (
-                        <button 
-                            key={tab.id}
-                            onClick={() => setView(tab.id as any)}
-                            className={cn(
-                                "flex items-center gap-2 px-5 py-2 rounded-lg transition-all text-sm font-bold whitespace-nowrap",
-                                view === tab.id ? "bg-white text-secondary shadow-sm" : "text-muted-foreground hover:bg-muted-foreground/10"
-                            )}
-                        >
-                            <tab.icon size={16} /> {tab.label}
-                        </button>
-                    ))}
+                <div className="bg-white p-8 rounded-[2rem] border border-orange-100 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform text-orange-500"><Users size={64} /></div>
+                    <p className="text-secondary/60 text-xs font-black uppercase tracking-widest mb-2">Pending Actions</p>
+                    <h3 className="text-4xl font-black text-secondary tracking-tighter italic">
+                        {((stats as any).new_leads || 0) + ((stats as any).new_counselling || 0) + ((stats as any).new_study_apps || 0)}
+                    </h3>
+                    <p className="text-[10px] text-orange-500 font-bold mt-2 flex items-center gap-1 uppercase tracking-tighter">
+                        Requires Immediate Response
+                    </p>
+                </div>
+                <div className="bg-secondary p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform text-primary"><GraduationCap size={64} /></div>
+                    <p className="text-white/40 text-xs font-black uppercase tracking-widest mb-2">Institutional Registry</p>
+                    <h3 className="text-4xl font-black text-white tracking-tighter italic">{stats.total_colleges}</h3>
+                    <p className="text-[10px] text-primary font-bold mt-2 flex items-center gap-1 uppercase tracking-tighter">
+                        Verified Partners Live
+                    </p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {[
-                    { label: 'Total Colleges', value: stats.total_colleges },
-                    { label: 'Pending Reviews', value: stats.pending_reviews },
-                    { label: 'Verified Listing', value: stats.verified_colleges },
-                ].map((stat, i) => (
-                    <div key={i} className="bg-card p-6 rounded-2xl border border-border shadow-sm flex flex-col justify-center">
-                        <p className="text-sm text-muted-foreground mb-1 font-medium">{stat.label}</p>
-                        <p className="text-4xl font-black text-secondary">
-                            {stat.value}
-                        </p>
+            {/* Integrated Command Center */}
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h2 className="text-2xl font-black text-secondary tracking-tighter italic">Applicant Command Center</h2>
+                        <p className="text-slate-400 text-sm font-medium">Manage and resolve all incoming student inquiries in real-time.</p>
                     </div>
-                ))}
-            </div>
+                    
+                    <div className="flex bg-slate-50 p-1 rounded-xl">
+                        {[
+                            { id: 'study-apps', label: 'Applications' },
+                            { id: 'leads', label: 'Inquiries' },
+                            { id: 'counselling', label: 'Counselling' },
+                            { id: 'colleges', label: 'Registry' },
+                            { id: 'analytics', label: 'Analysis' },
+                            { id: 'create', label: 'Add College' },
+                            { id: 'bulk', label: 'Import' },
+                            { id: 'team', label: 'Team' }
+                        ].map(tab => (
+                            <button 
+                                key={tab.id}
+                                onClick={() => { setView(tab.id as any); setEditingCollege(null); }}
+                                className={cn(
+                                    "px-4 py-2 rounded-lg text-xs font-black transition-all uppercase tracking-widest",
+                                    view === tab.id ? "bg-white text-secondary shadow-sm" : "text-slate-400 hover:text-secondary"
+                                )}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-            <div className="pt-4">
-                {view === 'create' && <CollegeForm />}
-                {view === 'reviews' && <ReviewModerator />}
-                {view === 'bulk' && <BulkImporter />}
-                {view === 'team' && <TeamAccess />}
+                <div className="p-8">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={view}
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                        >
+                            { view === 'leads' && <LeadTracker /> }
+                            { view === 'counselling' && <CounsellingTracker /> }
+                            { view === 'study-apps' && <StudyAppTracker /> }
+                            { view === 'colleges' && <CollegeManager onEdit={(c: any) => { setEditingCollege(c); setView('create'); }} /> }
+                            { view === 'analytics' && <AnalyticsDashboard /> }
+                            { view === 'create' && <CollegeForm onSuccess={() => { refreshStats(); setEditingCollege(null); }} initialData={editingCollege} /> }
+                            { view === 'bulk' && <BulkImporter /> }
+                            { view === 'team' && <TeamAccess /> }
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
     )

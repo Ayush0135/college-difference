@@ -44,9 +44,22 @@ async def send_otp(request: OTPRequest):
         
     otp = "".join([str(random.randint(0, 9)) for _ in range(6)])
     
-    msg = MIMEText(f"Your College Discovery Platform verification code is: {otp}")
-    msg["Subject"] = "Your Verification Code"
-    msg["From"] = SMTP_EMAIL
+    email_content = f"""
+    Hello,
+
+    Your verification code for the Degree Difference platform is:
+
+    {otp}
+
+    This code will expire in 5 minutes. If you did not request this, please ignore this email.
+
+    Best regards,
+    Degree Difference Team
+    """
+    
+    msg = MIMEText(email_content)
+    msg["Subject"] = f"{otp} is your verification code"
+    msg["From"] = f"Degree Difference <{SMTP_EMAIL}>"
     msg["To"] = request.email
     
     try:
@@ -56,7 +69,7 @@ async def send_otp(request: OTPRequest):
                 server.login(SMTP_EMAIL, SMTP_PASSWORD)
                 server.send_message(msg)
         else:
-            print(f"SMTP Mock: OTP for {request.email} is {otp}")
+            print(f"⚠️ SMTP MOCKED: OTP for {request.email} is {otp}")
             
         supabase.table("otps").insert({
             "email": request.email,
@@ -65,7 +78,10 @@ async def send_otp(request: OTPRequest):
         }).execute()
         
         return {"message": "OTP sent successfully"}
+    except smtplib.SMTPAuthenticationError:
+        raise HTTPException(status_code=500, detail="Identity verification service is temporarily unavailable (Auth Error).")
     except Exception as e:
+        print(f"❌ SMTP ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/auth/verify-otp")

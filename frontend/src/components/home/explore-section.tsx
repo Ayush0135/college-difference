@@ -6,28 +6,32 @@ import Image from 'next/image'
 
 const collections = [
     {
-        title: "Study in Delhi NCR",
+        title: "Delhi NCR",
+        subtitle: "HUB OF EDUCATION",
         count: "850+ Colleges",
         image: "https://images.unsplash.com/photo-1587474260584-1f35a7a89781?auto=format&fit=crop&q=80&w=600",
         type: "city"
     },
     {
-        title: "Top Placement MBA",
-        count: "120+ Programs",
-        image: "https://images.unsplash.com/photo-1507679799987-c7377ec486b6?auto=format&fit=crop&q=80&w=600",
-        type: "goal"
-    },
-    {
-        title: "Study in Bengaluru",
-        count: "640+ Colleges",
+        title: "Bengaluru",
+        subtitle: "TECH & INNOVATION",
+        count: "600+ Colleges",
         image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&q=80&w=600",
         type: "city"
     },
     {
-        title: "Best ROI Engineering",
-        count: "310+ Colleges",
-        image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&q=80&w=600",
-        type: "goal"
+        title: "Mumbai",
+        subtitle: "FINANCIAL CAPITAL",
+        count: "500+ Colleges",
+        image: "https://images.unsplash.com/photo-1566523384844-981f196201ad?auto=format&fit=crop&q=80&w=600",
+        type: "city"
+    },
+    {
+        title: "Pune",
+        subtitle: "OXFORD OF EAST",
+        count: "400+ Colleges",
+        image: "https://images.unsplash.com/photo-1505506005740-a93704286f0d?auto=format&fit=crop&q=80&w=600",
+        type: "city"
     }
 ]
 
@@ -84,9 +88,12 @@ export default function ExploreSection() {
                                             {item.type === 'city' ? 'Location' : 'Academic Focus'}
                                         </span>
                                     </div>
-                                    <h3 className="text-2xl font-black text-white leading-none tracking-tight">
-                                        {item.title}
-                                    </h3>
+                                    <div className="space-y-1">
+                                        <h3 className="text-2xl font-black text-white leading-none tracking-tight">
+                                            {item.title}
+                                        </h3>
+                                        <p className="text-primary text-[10px] font-black tracking-[0.2em]">{item.subtitle}</p>
+                                    </div>
                                     <div className="flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 delayed-100">
                                         <span className="text-white/60 text-sm font-bold">{item.count}</span>
                                         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/40 scale-0 group-hover:scale-100 transition-transform duration-300">

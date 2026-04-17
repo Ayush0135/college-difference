@@ -6,10 +6,13 @@ from supabase import create_client, Client
 
 router = APIRouter()
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Supabase setup
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY else None
 
 class SyncRequest(BaseModel):
     url: str

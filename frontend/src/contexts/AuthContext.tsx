@@ -51,15 +51,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 localStorage.removeItem('auth_user')
                 localStorage.removeItem('auth_token')
             }
-        } else {
-            // Trigger auth modal after a few seconds if not logged in (Optional Reminder)
-            const timer = setTimeout(() => {
-                if (!localStorage.getItem('auth_viewed_hint')) {
-                    setIsAuthModalOpen(true)
-                    localStorage.setItem('auth_viewed_hint', 'true')
-                }
-            }, 10000) // 10 seconds reminder, only once per device
-            return () => clearTimeout(timer)
         }
         setIsLoading(false)
     }, [])

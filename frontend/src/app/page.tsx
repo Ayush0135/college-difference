@@ -1,49 +1,58 @@
 'use client'
 
 import Hero from "@/components/home/hero"
-import OutcomeSection from "@/components/home/outcome-section"
+import FeaturesSection from "@/components/home/features-section"
 import PromoBanner from "@/components/home/promo-banner"
 import ListingTable from "@/components/home/listing-table"
 import ExploreSection from "@/components/home/explore-section"
-import ReviewSection from "@/components/college/review-section"
-import { useState, useRef } from "react"
-import AuthModal from "@/components/auth/auth-modal"
+import StepBanner from "@/components/home/step-banner"
+import TestimonialSection from "@/components/home/testimonial-section"
+import CounsellingSection from "@/components/home/counselling-section"
+import Footer from "@/components/layout/Footer"
+import { useState, useRef, useEffect } from "react"
+import AuthModal from "@/components/auth/AuthModal"
 import { Search } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function Home() {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    
     const [isAuthOpen, setIsAuthOpen] = useState(false)
-    const [activeCategory, setActiveCategory] = useState('Engineering')
+    const [activeCategory, setActiveCategory] = useState(searchParams.get('goal') || 'Engineering')
     const [globalSearch, setGlobalSearch] = useState('')
     const resultsRef = useRef<HTMLDivElement>(null)
 
+    const updateUrl = (goal: string, city?: string) => {
+        const params = new URLSearchParams(searchParams.toString())
+        if (goal) params.set('goal', goal)
+        if (city) params.set('city', city)
+        router.push(`/?${params.toString()}`, { scroll: false })
+    }
+
     const handleGoalSelect = (goal: string) => {
         setActiveCategory(goal)
+        updateUrl(goal, searchParams.get('city') || undefined)
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    const handleCitySelect = (city: string) => {
+        updateUrl(activeCategory, city)
         resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
 
     const handleSearchChange = (search: string) => {
         setGlobalSearch(search)
-        if (search.length > 2) {
-            resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
-        }
+        // Removed scroll to results to keep user in hero area
     }
 
-    // Demo reviews data
-    const demoReviews = [
-        {
-            user: "Rahul Sharma",
-            rating: 4.5,
-            comment: "The campus life is amazing, and the faculty for CSE is top-notch. Competitive environment but very helpful peers.",
-            pros: ["Modern Labs", "Industry Connections", "Green Campus"],
-            cons: ["Strict Attendance", "Canteen Food"],
-            isVerified: true
-        }
-    ]
+
 
     return (
         <main className="flex min-h-screen flex-col bg-slate-50">
             <Hero 
                 onGoalSelect={handleGoalSelect} 
+                onCitySelect={handleCitySelect}
                 onSearchChange={handleSearchChange}
             />
             
@@ -54,36 +63,17 @@ export default function Home() {
                 />
             </div>
 
-            <PromoBanner 
-                type="fair"
-                title="Grand Education Fair 2024"
-                subtitle="Interact with 50+ Global Universities. Live at Bengaluru."
-                ctaText="Register Now"
-                bgImage="https://images.unsplash.com/photo-1540317580384-e5d43616b9aa?auto=format&fit=crop&q=80&w=1200"
-            />
+            <StepBanner />
             
-            <OutcomeSection />
+            <FeaturesSection />
 
-            <PromoBanner 
-                type="alert"
-                title="JEE Main 2024 Alerts"
-                subtitle="Registration for Session 2 is now open. Don't miss the deadline!"
-                ctaText="Subscribe"
-                className="mt-0"
-                bgImage="https://images.unsplash.com/photo-1622323098583-acc258b3833d?auto=format&fit=crop&q=80&w=1200"
-            />
+            <CounsellingSection />
 
-            <div className="container mx-auto px-4 py-24">
-                <ReviewSection reviews={demoReviews} />
+            <div className="py-24">
+                <TestimonialSection />
             </div>
 
-            <PromoBanner 
-                type="utility"
-                title="Search 30k+ Courses"
-                subtitle="Find your perfect fit with our advanced search filters."
-                ctaText="Try Now"
-                bgImage="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1200"
-            />
+            <Footer />
 
             <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
             

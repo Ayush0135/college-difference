@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
+import LoginReminder from "@/components/auth/LoginReminder";
 
 const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function RootLayout({
             <Navbar />
             {children}
             <AuthModal />
+            <LoginReminder />
         </AuthProvider>
       </body>
     </html>

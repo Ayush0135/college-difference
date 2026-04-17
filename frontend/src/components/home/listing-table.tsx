@@ -2,9 +2,10 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, ExternalLink, ShieldCheck, Clock, TrendingUp, X, CheckCircle2, Zap, ArrowRight, Loader2 } from 'lucide-react'
+import { Search, MapPin, ExternalLink, ShieldCheck, Clock, TrendingUp, X, CheckCircle2, Zap, ArrowRight, Loader2, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import ApplyModal from '../college/ApplyModal'
 
 const categories = ['Engineering', 'Management', 'Medical', 'Law', 'Commerce']
 
@@ -15,17 +16,25 @@ export default function ListingTable({
     initialCategory?: string, 
     externalSearch?: string 
 }) {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    
+    // Sync with URL
+    const urlGoal = searchParams.get('goal') || initialCategory
+    const urlCity = searchParams.get('city') || ''
+
     const [colleges, setColleges] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [activeCategory, setActiveCategory] = useState(initialCategory)
+    const [activeCategory, setActiveCategory] = useState(urlGoal)
     const [search, setSearch] = useState(externalSearch)
     const [selectedCollege, setSelectedCollege] = useState<any>(null)
-    const router = useRouter()
+    const [applyModal, setApplyModal] = useState<{ isOpen: boolean, college: any }>({ isOpen: false, college: null })
 
     // Fetch colleges
     useEffect(() => {
         setLoading(true)
-        fetch(`http://localhost:8000/colleges?goal=${activeCategory}&search=${search}`)
+        const cityParam = urlCity ? `&city=${urlCity}` : ''
+        fetch(`http://localhost:8000/colleges?goal=${activeCategory}&search=${search}${cityParam}`)
             .then(res => res.json())
             .then(data => {
                 setColleges(data)
@@ -35,7 +44,7 @@ export default function ListingTable({
                 console.error('Fetch error:', err)
                 setLoading(false)
             })
-    }, [activeCategory, search])
+    }, [activeCategory, search, urlCity])
 
     // Sync from external props
     useEffect(() => {
@@ -46,10 +55,18 @@ export default function ListingTable({
         setSearch(externalSearch)
     }, [externalSearch])
 
-    const filteredColleges = colleges // The API already filters for us
+    const filteredColleges = useMemo(() => {
+        // If searching, show all matches for better discovery
+        if (search.trim() || externalSearch.trim()) return colleges;
+        // Otherwise limit to top 10 as requested
+        return colleges.slice(0, 10);
+    }, [colleges, search, externalSearch])
 
     return (
-        <section className="py-24 bg-slate-50 relative overflow-hidden">
+        <section className={cn(
+            "relative overflow-hidden transition-all duration-700 bg-slate-50",
+            (search.trim() || externalSearch.trim()) ? "py-12" : "py-24"
+        )}>
             <div className="container mx-auto px-4 relative z-10">
                 <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8">
                     <div className="max-w-2xl">
@@ -158,19 +175,39 @@ export default function ListingTable({
                                         <td className="px-4 py-8">
                                             <div className="flex flex-col">
                                                 <span className="text-lg font-black text-secondary">₹{college.fees}</span>
-                                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Average Package ₹4.5L+</span>
+                                                <div className="flex flex-col gap-1 mt-1">
+                                                    <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-tighter flex items-center gap-1">
+                                                        <TrendingUp size={10} /> Avg Placement {college.avg_package ? `₹${college.avg_package}L` : 'N/A'}
+                                                    </span>
+                                                    {college.hostels?.length > 0 && (
+                                                        <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter flex items-center gap-1">
+                                                            <Building2 size={10} /> Hostel Available (₹{college.hostels[0].fee})
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-8 text-right">
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    router.push(`/colleges/${college.slug}`)
-                                                }}
-                                                className="bg-slate-100 text-secondary hover:bg-primary hover:text-white px-6 py-3 rounded-xl text-sm font-black transition-all flex items-center gap-2 ml-auto"
-                                            >
-                                                View Details <ArrowRight size={16} />
-                                            </button>
+                                            <div className="flex flex-col gap-2 ml-auto w-fit">
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setApplyModal({ isOpen: true, college })
+                                                    }}
+                                                    className="bg-primary text-white hover:bg-primary/90 px-6 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                                                >
+                                                    <Zap size={14} className="fill-white" /> Easy Apply
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        router.push(`/colleges/${college.slug}`)
+                                                    }}
+                                                    className="bg-slate-100 text-secondary hover:bg-slate-200 px-6 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    View Details <ArrowRight size={14} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </motion.tr>
                                 ))}
@@ -267,6 +304,13 @@ export default function ListingTable({
                     </>
                 )}
             </AnimatePresence>
+
+            <ApplyModal 
+                isOpen={applyModal.isOpen} 
+                onClose={() => setApplyModal({ ...applyModal, isOpen: false })}
+                collegeId={applyModal.college?.id}
+                collegeName={applyModal.college?.name}
+            />
         </section>
     )
 }

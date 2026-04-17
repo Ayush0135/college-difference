@@ -34,6 +34,7 @@ class CollegeParams(BaseModel):
     cutoff: str
     deadline: str
     description: str
+    brochure_url: Optional[str] = None
     courses: List[CourseParams]
     reviews: List[ReviewParams]
 
@@ -44,10 +45,23 @@ async def get_colleges(
     search: Optional[str] = None
 ):
     if not supabase: return {"error": "DB not configured"}
-    query = supabase.table("colleges").select("*, courses(*), fees(*)")
-    if city and city != "Select City": query = query.ilike("location", f"%{city}%")
-    if goal and goal != "Select Goal": query = query.ilike("stream", f"%{goal}%")
-    if search: query = query.ilike("name", f"%{search}%")
+    query = supabase.table("colleges").select("*, courses(*), fees(*), hostels(*)")
+    
+    if city and city != "Select City":
+        if city == "Delhi NCR":
+            query = query.or_("location.ilike.%Delhi%,location.ilike.%Noida%,location.ilike.%Gurgaon%,location.ilike.%Ghaziabad%,location.ilike.%Faridabad%")
+        elif city == "Mumbai":
+            query = query.or_("location.ilike.%Mumbai%,location.ilike.%Thane%,location.ilike.%Navi%")
+        elif city == "Bengaluru":
+            query = query.or_("location.ilike.%Bangalore%,location.ilike.%Bengaluru%")
+        else:
+            query = query.ilike("location", f"%{city}%")
+    
+    if goal and goal != "Select Goal": 
+        query = query.ilike("stream", f"%{goal}%")
+        
+    if search: 
+        query = query.ilike("name", f"%{search}%")
     query = query.order("rank", desc=False)
     
     try:
@@ -59,68 +73,7 @@ async def get_colleges(
 @router.get("/colleges/{slug}")
 async def get_college_detail(slug: str):
     if not supabase: return {"error": "DB not configured"}
-    res = supabase.table("colleges").select("*, courses(*), fees(*), reviews(*)").eq("slug", slug).execute()
+    res = supabase.table("colleges").select("*, courses(*), fees(*), reviews(*), hostels(*)").eq("slug", slug).execute()
     if not res.data:
         raise HTTPException(status_code=404, detail="College not found")
     return res.data[0]
-
-from admin import get_admin_user
-from fastapi import Depends
-
-@router.post("/admin/colleges")
-async def create_college(payload: CollegeParams, user: dict = Depends(get_admin_user)):
-    if not supabase: return {"error": "DB not configured"}
-    try:
-        # Auto-sanitize slug to prevent 404 router crashes
-        raw_slug = payload.slug.strip() if payload.slug else payload.name
-        safe_slug = re.sub(r'[^a-z0-9]+', '-', raw_slug.lower()).strip('-')
-        if not safe_slug: safe_slug = "college-unknown"
-
-        # Insert College
-        college_res = supabase.table("colleges").insert({
-            "name": payload.name,
-            "slug": safe_slug,
-            "location": payload.location,
-            "stream": payload.stream,
-            "nirf_rank": int(payload.nirf_rank) if payload.nirf_rank.isdigit() else None,
-            "rank": int(payload.nirf_rank) if payload.nirf_rank.isdigit() else 999,
-            "accreditation": payload.accreditation,
-            "agency": payload.accreditation.split()[0] if payload.accreditation else "UGC",
-            "description": payload.description,
-            "cutoff": payload.cutoff,
-            "deadline": payload.deadline,
-            "fees": payload.courses[0].total_year_1 if payload.courses else "NA",
-            "logo": payload.name[0].upper() if payload.name else "?",
-            "status": "published"
-        }).execute()
-        
-        college_id = college_res.data[0]["id"]
-        
-        # Insert Courses & Fees
-        for course in payload.courses:
-            if course.name:
-                supabase.table("courses").insert({
-                    "college_id": college_id,
-                    "name": course.name,
-                    "duration": course.duration,
-                    "seats": int(course.seats) if course.seats.isdigit() else None,
-                    "eligibility": course.eligibility,
-                    "fees": course.total_year_1
-                }).execute()
-                
-        # Insert Reviews
-        for review in payload.reviews:
-            if review.comment:
-                supabase.table("reviews").insert({
-                    "college_id": college_id,
-                    "rating": review.rating,
-                    "comment": review.comment,
-                    "pros": [p.strip() for p in review.pros.split(",") if p.strip()],
-                    "cons": [c.strip() for c in review.cons.split(",") if c.strip()],
-                    "is_verified": True
-                }).execute()
-                
-        return {"success": True, "college_id": college_id, "slug": payload.slug}
-    except Exception as e:
-        print(f"FAILED TO INSERT COLLEGE: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))

@@ -14,6 +14,7 @@ export default function AuthModal() {
     const [phone, setPhone] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    const [agreedToTerms, setAgreedToTerms] = useState(false)
 
     const handleSendOTP = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -143,7 +144,29 @@ export default function AuthModal() {
                                         />
                                     </div>
                                 </div>
-                                <button disabled={loading} className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg flex justify-center items-center gap-2">
+
+                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+                                    <div className="flex gap-3">
+                                        <input 
+                                            type="checkbox" 
+                                            id="terms"
+                                            checked={agreedToTerms}
+                                            onChange={e => setAgreedToTerms(e.target.checked)}
+                                            className="mt-1 w-4 h-4 rounded text-primary focus:ring-primary transition-all cursor-pointer"
+                                        />
+                                        <label htmlFor="terms" className="text-[11px] leading-relaxed text-slate-500 font-medium cursor-pointer">
+                                            I agree to the Terms of Service and Privacy Policy. I understand that Degree Difference will process my data to facilitate college applications and may contact me regarding my academic journey.
+                                        </label>
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 pl-7 italic border-l-2 border-slate-200">
+                                        Our platform connects you with premier educational institutions. By continuing, you authorize us to share your provided details with relevant colleges and agree to receive updates via email, phone, or mobile messaging for counseling purposes.
+                                    </div>
+                                </div>
+
+                                <button 
+                                    disabled={loading || !agreedToTerms} 
+                                    className="w-full bg-secondary disabled:opacity-50 hover:bg-secondary/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg flex justify-center items-center gap-2"
+                                >
                                     {loading ? <Loader2 size={18} className="animate-spin" /> : <>Send Secure Code <ArrowRight size={18} /></>}
                                 </button>
                             </form>

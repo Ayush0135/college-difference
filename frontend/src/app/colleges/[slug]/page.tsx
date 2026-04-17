@@ -20,11 +20,13 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import ApplyModal from '@/components/college/ApplyModal'
 
 export default function CollegeDetailPage() {
     const { slug } = useParams()
     const [college, setCollege] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
 
     useEffect(() => {
         if (slug) {
@@ -99,7 +101,10 @@ export default function CollegeDetailPage() {
                             </div>
                         </div>
                         <div className="hidden lg:flex flex-col gap-3 shrink-0">
-                            <button className="bg-primary hover:bg-primary/90 text-white font-black px-12 py-5 rounded-2xl text-xl shadow-2xl shadow-primary/40 active:scale-95 transition-all flex items-center gap-3">
+                            <button 
+                                className="bg-primary hover:bg-primary/90 text-white font-black px-12 py-5 rounded-2xl text-xl shadow-2xl shadow-primary/40 active:scale-95 transition-all flex items-center gap-3"
+                                onClick={() => setIsApplyModalOpen(true)}
+                            >
                                 <Zap size={24} className="fill-white" /> Easy Apply Now
                             </button>
                             <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-black px-8 py-3 rounded-2xl text-sm transition-all flex items-center justify-center gap-2 uppercase tracking-tighter">
@@ -139,10 +144,10 @@ export default function CollegeDetailPage() {
                             {/* Quick Stats Grid */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                 {[
-                                    { icon: Users, label: 'Alumni', val: '2.5L+' },
-                                    { icon: Star, label: 'Student Rating', val: '4.8/5' },
-                                    { icon: Trophy, label: 'Global Rank', val: '#450' },
-                                    { icon: CheckCircle2, label: 'Placements', val: '98%' },
+                                    { icon: IndianRupee, label: 'Average Fee', val: college.fees || 'Varies' },
+                                    { icon: Star, label: 'Student Rating', val: (college.reviews?.length > 0 ? (college.reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / college.reviews.length).toFixed(1) : '4.8') + '/5' },
+                                    { icon: Trophy, label: 'NIRF Rank', val: `#${college.rank || 'N/A'}` },
+                                    { icon: CheckCircle2, label: 'Avg Placement', val: college.avg_package ? `₹${college.avg_package}L` : 'N/A' },
                                 ].map(stat => (
                                     <div key={stat.label} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center gap-1 group hover:border-primary/30 transition-all">
                                         <stat.icon className="text-primary mb-2 group-hover:scale-110 transition-transform" size={24} />
@@ -173,6 +178,27 @@ export default function CollegeDetailPage() {
                                 )}
                            </div>
                         </div>
+
+                        {/* Hostel Infrastructure */}
+                        {college.hostels?.length > 0 && (
+                            <div className="bg-white rounded-[2.5rem] shadow-xl p-10 border border-slate-100 space-y-8">
+                                <h3 className="text-3xl font-black text-secondary tracking-tighter italic">Residential <span className="text-primary">Intelligence</span></h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {college.hostels.map((hostel: any, i: number) => (
+                                        <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-200/60 hover:border-primary/40 transition-all group">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h4 className="text-xl font-black text-secondary leading-tight">{hostel.room_type}</h4>
+                                                <div className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest", hostel.is_ac ? "bg-emerald-100 text-emerald-600" : "bg-slate-200 text-slate-500")}>
+                                                    {hostel.is_ac ? 'AC Room' : 'Non-AC'}
+                                                </div>
+                                            </div>
+                                            <div className="text-lg font-black text-primary mb-3">₹{hostel.fee}<span className="text-xs text-slate-400 ml-1 font-bold">/ Annum</span></div>
+                                            <p className="text-sm text-slate-500 font-medium leading-relaxed">{hostel.description || 'Modern amenities with high-speed internet and security.'}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Sidebar */}
@@ -202,8 +228,17 @@ export default function CollegeDetailPage() {
                                         <span>Discount</span>
                                     </div>
                                 </div>
-                                <button className="w-full bg-white text-secondary font-black py-4 rounded-xl shadow-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2">
-                                    Download Brochure <ExternalLink size={18} />
+                                <button 
+                                    onClick={() => {
+                                        if (college.brochure_url) {
+                                            window.open(college.brochure_url, '_blank')
+                                        } else {
+                                            alert('Brochure is currently being updated for the 2024 academic session.')
+                                        }
+                                    }}
+                                    className="w-full bg-white text-secondary font-black py-4 rounded-xl shadow-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2"
+                                >
+                                    {college.brochure_url ? 'Download Brochure' : 'Brochure Updating'} <ExternalLink size={18} />
                                 </button>
                             </div>
                         </div>
@@ -213,10 +248,11 @@ export default function CollegeDetailPage() {
                             <h4 className="text-xl font-black text-secondary mb-6 border-b border-slate-100 pb-4">Key Performance</h4>
                             <div className="space-y-6">
                                 {[
-                                    { label: 'Avg Placement', val: '₹12.5 LPA', color: 'text-emerald-500' },
-                                    { label: 'Highest Package', val: '₹48 LPA', color: 'text-primary' },
-                                    { label: 'Faculty Ratio', val: '1:15', color: 'text-secondary' },
-                                    { label: 'Research Papers', val: '250+', color: 'text-secondary' },
+                                    { label: 'Avg Placement', val: college.avg_package ? `₹${college.avg_package} LPA` : 'N/A', color: 'text-emerald-500' },
+                                    { label: 'Highest Package', val: college.highest_package ? `₹${college.highest_package} LPA` : '₹48 LPA', color: 'text-primary' },
+                                    { label: 'Median Package', val: college.median_package ? `₹${college.median_package} LPA` : 'N/A', color: 'text-blue-500' },
+                                    { label: 'NIRF Ranking', val: college.rank ? `#${college.rank}` : 'Unranked', color: 'text-secondary' },
+                                    { label: 'Institution Type', val: college.stream || 'Technical', color: 'text-secondary' },
                                 ].map(fact => (
                                     <div key={fact.label} className="flex items-center justify-between border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                                         <span className="text-sm font-black text-slate-400 uppercase tracking-tighter">{fact.label}</span>
@@ -228,6 +264,13 @@ export default function CollegeDetailPage() {
                     </div>
                 </div>
             </div>
+
+            <ApplyModal 
+                isOpen={isApplyModalOpen} 
+                onClose={() => setIsApplyModalOpen(false)}
+                collegeId={college.id}
+                collegeName={college.name}
+            />
         </main>
     )
 }
