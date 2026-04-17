@@ -10,15 +10,14 @@ import TestimonialSection from "@/components/home/testimonial-section"
 import CounsellingSection from "@/components/home/counselling-section"
 import Footer from "@/components/layout/Footer"
 import { useState, useRef, useEffect } from "react"
-import AuthModal from "@/components/auth/AuthModal"
+import { useAuth } from "@/contexts/AuthContext"
 import { Search } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export default function Home() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    
-    const [isAuthOpen, setIsAuthOpen] = useState(false)
+    const { openAuthModal } = useAuth()
     const [activeCategory, setActiveCategory] = useState(searchParams.get('goal') || 'Engineering')
     const [globalSearch, setGlobalSearch] = useState('')
     const resultsRef = useRef<HTMLDivElement>(null)
@@ -74,12 +73,10 @@ export default function Home() {
             </div>
 
             <Footer />
-
-            <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
             
             {/* Floating Need Counselling fixed in Hero but helper for auth */}
             <button 
-                onClick={() => setIsAuthOpen(true)}
+                onClick={openAuthModal}
                 className="hidden" // Handled by hero components
             >
                 Login
