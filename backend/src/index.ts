@@ -60,7 +60,7 @@ app.post('/auth/send-otp', async (c) => {
 
 // VERIFY OTP
 app.post('/auth/verify-otp', async (c) => {
-  const { email, otp } = await c.req.json()
+  const { email, code } = await c.req.json()
   const supabase = getSupabase(c)
 
   const { data, error } = await supabase
@@ -69,9 +69,18 @@ app.post('/auth/verify-otp', async (c) => {
     .eq('email', email)
     .single()
 
-  if (error || data.otp !== otp) {
+  if (error || data?.otp !== String(code).trim()) {
     return c.json({ error: 'Invalid OTP' }, 401)
   }
+
+  const otpAgeMinutes = (new Date().getTime() - new Date(data.created_at).getTime()) / 60000;
+  if (otpAgeMinutes > 3) {
+    await supabase.from('otps').delete().eq('email', email)
+    return c.json({ error: 'OTP has expired (valid for 3 minutes). Please request a new one.' }, 401)
+  }
+
+  // Delete OTP after successful verification
+  await supabase.from('otps').delete().eq('email', email)
 
   // Generate JWT
   const secret = new TextEncoder().encode(c.env.JWT_SECRET || 'fallback-secret-change-me')
