@@ -17,12 +17,12 @@ export default function ReviewModerator() {
     }, [token])
     
     const approve = async (id: string) => {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/reviews/${id}/approve`, { method: `POST', headers: { 'Authorization': `Bearer ${token}` } })
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/reviews/${id}/approve`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } })
         setReviews(reviews.filter(r => r.id !== id))
     }
     
     const reject = async (id: string) => {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/reviews/${id}`, { method: `DELETE', headers: { 'Authorization': `Bearer ${token}` } })
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/reviews/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
         setReviews(reviews.filter(r => r.id !== id))
     }
     

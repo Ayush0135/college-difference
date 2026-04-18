@@ -116,7 +116,7 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
                 body: JSON.stringify({
                     ...formData,
                     placement_highlights: formData.placement_highlights ? formData.placement_highlights.split(',') : [],
-                    reviews: formData.reviews.map(r => ({ ...r, rating: Number(r.rating) }))
+                    reviews: formData.reviews.map((r: any) => ({ ...r, rating: Number(r.rating) }))
                 })
             })
             const data = await res.json()
@@ -217,7 +217,7 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
                                 <button type="button" onClick={addCourse} className="flex items-center gap-2 text-primary hover:bg-primary/10 px-4 py-2 rounded-xl font-black text-xs uppercase transition-all border border-primary/20"><Plus size={16} /> Add Course</button>
                             </div>
                             <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto pr-2">
-                                {formData.courses.map((course, index) => (
+                                {formData.courses.map((course: any, index: number) => (
                                     <div key={index} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 relative group">
                                         <button type="button" onClick={() => removeCourse(index)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                                         <div className="grid grid-cols-2 gap-4">
@@ -255,7 +255,7 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
                                 <button type="button" onClick={addHostel} className="flex items-center gap-2 text-primary hover:bg-primary/10 px-4 py-2 rounded-xl font-black text-xs uppercase transition-all border border-primary/20"><Plus size={16} /> Add Room Type</button>
                             </div>
                             <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto pr-2">
-                                {formData.hostels.map((hostel, index) => (
+                                {formData.hostels.map((hostel: any, index: number) => (
                                     <div key={index} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 relative group">
                                         <button type="button" onClick={() => removeHostel(index)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                                         <div className="grid grid-cols-2 gap-4">
@@ -282,7 +282,7 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
                                 <button type="button" onClick={addReview} className="flex items-center gap-2 text-primary hover:bg-primary/10 px-4 py-2 rounded-xl font-black text-xs uppercase transition-all border border-primary/20"><Plus size={16} /> Add Review</button>
                             </div>
                             <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto pr-2">
-                                {formData.reviews.map((review, index) => (
+                                {formData.reviews.map((review: any, index: number) => (
                                     <div key={index} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 relative group">
                                         <button type="button" onClick={() => removeReview(index)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                                          <div className="space-y-4">
