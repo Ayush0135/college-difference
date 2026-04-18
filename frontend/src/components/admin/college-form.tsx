@@ -84,14 +84,14 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
 
     // Hostels Logic
     const addHostel = () => setFormData({ ...formData, hostels: [...formData.hostels, { room_type: '', fee: '', description: '', is_ac: false }] })
-    const removeHostel = (index: number) => setFormData({ ...formData, hostels: formData.hostels.filter((_, i) => i !== index) })
+    const removeHostel = (index: number) => setFormData({ ...formData, hostels: formData.hostels.filter((_hostel: any, i: number) => i !== index) })
     const updateHostel = (index: number, field: string, value: any) => {
         const newHostels = [...formData.hostels]; newHostels[index] = { ...newHostels[index], [field]: value };
         setFormData({ ...formData, hostels: newHostels })
     }
 
     const addReview = () => setFormData({ ...formData, reviews: [...formData.reviews, { rating: '5', comment: '', pros: '', cons: '' }] })
-    const removeReview = (index: number) => setFormData({ ...formData, reviews: formData.reviews.filter((_, i) => i !== index) })
+    const removeReview = (index: number) => setFormData({ ...formData, reviews: formData.reviews.filter((_review: any, i: number) => i !== index) })
     const updateReview = (index: number, field: string, value: any) => {
         const newReviews = [...formData.reviews]; newReviews[index] = { ...newReviews[index], [field]: value };
         setFormData({ ...formData, reviews: newReviews })
