@@ -13,8 +13,9 @@ import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { Search } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 
-export default function Home() {
+function HomeContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { openAuthModal } = useAuth()
@@ -82,5 +83,13 @@ export default function Home() {
                 Login
             </button>
         </main>
+    )
+}
+
+export default function Home() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" /></div>}>
+            <HomeContent />
+        </Suspense>
     )
 }

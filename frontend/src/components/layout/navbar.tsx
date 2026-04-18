@@ -4,6 +4,7 @@ import { Search, Grid, Bell, User, GraduationCap, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import GoalCitySelector from './goal-city-selector'
 import { useAuth } from '@/contexts/AuthContext'
+import { Suspense } from 'react'
 
 export default function Navbar() {
     const { user, openAuthModal, logout } = useAuth()
@@ -23,7 +24,9 @@ export default function Navbar() {
                     </Link>
                     
                     <div className="hidden lg:flex items-center gap-4 text-white/80 text-sm font-medium">
-                        <GoalCitySelector />
+                        <Suspense fallback={<div className="h-4 w-24 bg-white/10 rounded animate-pulse" />}>
+                            <GoalCitySelector />
+                        </Suspense>
                     </div>
                 </div>
 
