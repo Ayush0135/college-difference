@@ -76,7 +76,7 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
 
     // Courses Logic
     const addCourse = () => setFormData({ ...formData, courses: [...formData.courses, { name: '', duration: '', seats: '', eligibility: '', total_year_1: '' }] })
-    const removeCourse = (index: number) => setFormData({ ...formData, courses: formData.courses.filter((_, i) => i !== index) })
+    const removeCourse = (index: number) => setFormData({ ...formData, courses: formData.courses.filter((_course: any, i: number) => i !== index) })
     const updateCourse = (index: number, field: string, value: any) => {
         const newCourses = [...formData.courses]; newCourses[index] = { ...newCourses[index], [field]: value };
         setFormData({ ...formData, courses: newCourses })
