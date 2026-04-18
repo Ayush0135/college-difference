@@ -1,24 +1,6 @@
-# Dependencies
 node_modules/
+.env
 .next/
-dist/
-build/
-.env
-.env.local
-.env.*.local
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-env/
-venv/
-.venv/
-.env
-
-# Supabase
-.supabase/
-
-# OS
-.DS_Store
-Thumbs.db
+backend_venv_backup/
+backend/package-lock.json
+frontend/package-lock.json

@@ -1,13 +1,10 @@
-#:schema node_modules/wrangler/config-schema.json
 name = "degree-difference-api"
-main = "main.py"
-compatibility_date = "2024-04-03"
-compatibility_flags = ["python_workers"]
+main = "src/index.ts"
+compatibility_date = "2024-10-18"
 
 [vars]
-# Add your environment variables here or in the Cloudflare Dashboard
-# NEXT_PUBLIC_SUPABASE_URL = "..."
-# NEXT_PUBLIC_SUPABASE_ANON_KEY = "..."
+# Add your environment variables here
+# RESEND_API_KEY = "..." (These are already in secrets)
 
 [observability]
 enabled = true
