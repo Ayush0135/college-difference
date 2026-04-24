@@ -9,8 +9,32 @@ import LoginReminder from "@/components/auth/LoginReminder";
 
 const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
-  title: "Degree Difference | Find Your Future",
-  description: "Verified reviews, detailed fee structures and placement data for top Indian colleges.",
+  title: "Degree Difference | Find Your Future Institute",
+  description: "Verified reviews, detailed fee structures and placement data for top Indian colleges. Make informed academic decisions with Degree Difference.",
+  keywords: ["Indian Colleges", "Higher Education", "College Reviews", "Admission 2024", "University Rankings"],
+  authors: [{ name: "Degree Difference Team" }],
+  openGraph: {
+    title: "Degree Difference | Find Your Future Institute",
+    description: "Verified reviews, detailed fee structures and placement data for top Indian colleges.",
+    url: "https://degreedifference.com",
+    siteName: "Degree Difference",
+    images: [
+      {
+        url: "https://degreedifference.com/og-image.jpg",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Degree Difference | Find Your Future",
+    description: "Verified reviews, detailed fee structures and placement data for top Indian colleges.",
+    images: ["https://degreedifference.com/og-image.jpg"],
+  },
+  metadataBase: new URL("https://degreedifference.com"),
 };
 export default function RootLayout({
   children,
