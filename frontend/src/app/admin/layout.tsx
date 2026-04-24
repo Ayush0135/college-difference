@@ -4,9 +4,11 @@ import { LayoutDashboard, GraduationCap, Users, Settings, LogOut } from 'lucide-
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
+    const { logout } = useAuth()
 
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
@@ -23,7 +25,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
                 
                 <div className="flex items-center gap-6">
-                    <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-bold">
+                    <button 
+                        onClick={logout}
+                        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-bold"
+                    >
                         <LogOut size={16} />
                         Logout
                     </button>
