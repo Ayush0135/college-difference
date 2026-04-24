@@ -20,58 +20,9 @@ export default function GoalCitySelector() {
     const [goals, setGoals] = useState<string[]>([])
     const [cities, setCities] = useState<string[]>([])
     const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [gRes, cRes] = await Promise.all([
-                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`),
-                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`)
-                ])
-                
-                const fallbackGoals = [{name: 'Engineering'}, {name: 'Management'}, {name: 'Science'}, {name: 'Arts and Humanities'}, {name: 'Medical'}];
-                const fallbackCities = [{name: 'Bengaluru'}, {name: 'Delhi'}, {name: 'Mumbai'}, {name: 'Pune'}, {name: 'Chennai'}];
-
-                const gData = gRes.ok ? await gRes.json() : fallbackGoals;
-                const cData = cRes.ok ? await cRes.json() : fallbackCities;
-
-                setGoals(gData.map((g: any) => g.name))
-                setCities(cData.map((c: any) => c.name))
-                
-                // Auto-detect location if city is not set
-                if (selectedCity === 'Select City') {
-                    const hasAsked = localStorage.getItem('geo_asked')
-                    if (!hasAsked) {
-                        handleDetectLocation()
-                        localStorage.setItem('geo_asked', 'true')
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to fetch selector data:', err)
-                setGoals(['Engineering', 'Management', 'Science', 'Arts and Humanities', 'Medical'])
-                setCities(['Bengaluru', 'Delhi', 'Mumbai', 'Pune', 'Chennai'])
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchData()
-    }, [selectedCity])
+    const [loadingLocation, setLoadingLocation] = useState(false)
 
     const containerRef = useRef<HTMLDivElement>(null)
-
-    const filteredCities = cities.filter(city => 
-        city.toLowerCase().includes(search.toLowerCase())
-    )
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsOpen(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [])
 
     const updateUrl = (goal: string, city: string) => {
         const params = new URLSearchParams(searchParams.toString())
@@ -103,20 +54,8 @@ export default function GoalCitySelector() {
         }
     }
 
-    const handleSelectGoal = (goal: string) => {
-        setSelectedGoal(goal)
-        setStep('city')
-        localStorage.setItem('user_goal', goal)
-        updateUrl(goal, selectedCity)
-    }
-
-    const [loadingLocation, setLoadingLocation] = useState(false)
-
     const handleDetectLocation = () => {
-        if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser')
-            return
-        }
+        if (!navigator.geolocation) return
 
         setLoadingLocation(true)
         navigator.geolocation.getCurrentPosition(
@@ -124,26 +63,88 @@ export default function GoalCitySelector() {
                 try {
                     const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`)
                     const data = await res.json()
-                    const city = data.city || data.locality || data.principalSubdivision
-                    if (city) {
-                        handleSelectCity(city)
-                    } else {
-                        alert('Could not determine city from your location')
+                    
+                    // Try to extract the best city name
+                    let detectedCity = data.city || data.locality || data.principalSubdivision
+                    
+                    if (detectedCity && cities.length > 0) {
+                        // Fuzzy match with our database cities to ensure consistency
+                        const match = cities.find(c => 
+                            detectedCity.toLowerCase().includes(c.toLowerCase()) || 
+                            c.toLowerCase().includes(detectedCity.toLowerCase())
+                        )
+                        handleSelectCity(match || detectedCity)
                     }
                 } catch (error) {
                     console.error('Error detecting location', error)
-                    alert('Error connecting to location service')
                 } finally {
                     setLoadingLocation(false)
                 }
             },
             (error) => {
-                console.error('Error getting location', error)
                 setLoadingLocation(false)
-                alert('Permission denied or unable to retrieve your location')
             }
         )
     }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [gRes, cRes] = await Promise.all([
+                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`),
+                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`)
+                ])
+                
+                const fallbackGoals = [{name: 'Engineering'}, {name: 'Management'}, {name: 'Science'}, {name: 'Arts and Humanities'}, {name: 'Medical'}];
+                const fallbackCities = [{name: 'Bengaluru'}, {name: 'Delhi'}, {name: 'Mumbai'}, {name: 'Pune'}, {name: 'Chennai'}];
+
+                const gData = gRes.ok ? await gRes.json() : fallbackGoals;
+                const cData = cRes.ok ? await cRes.json() : fallbackCities;
+
+                setGoals(gData.map((g: any) => g.name))
+                setCities(cData.map((c: any) => c.name))
+            } catch (err) {
+                console.error('Failed to fetch selector data:', err)
+                setGoals(['Engineering', 'Management', 'Science', 'Arts and Humanities', 'Medical'])
+                setCities(['Bengaluru', 'Delhi', 'Mumbai', 'Pune', 'Chennai'])
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [])
+
+    // Dedicated effect for auto-detection to avoid race conditions
+    useEffect(() => {
+        if (!loading && cities.length > 0 && selectedCity === 'Select City') {
+            const hasAsked = localStorage.getItem('geo_asked_v3')
+            if (!hasAsked) {
+                handleDetectLocation()
+                localStorage.setItem('geo_asked_v3', 'true')
+            }
+        }
+    }, [loading, cities, selectedCity])
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    const handleSelectGoal = (goal: string) => {
+        setSelectedGoal(goal)
+        setStep('city')
+        localStorage.setItem('user_goal', goal)
+        updateUrl(goal, selectedCity)
+    }
+
+    const filteredCities = cities.filter(city => 
+        city.toLowerCase().includes(search.toLowerCase())
+    )
 
     return (
         <div className="relative" ref={containerRef}>
