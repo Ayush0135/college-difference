@@ -20,14 +20,34 @@ export default function LocationModal({ isOpen, onClose, onSelect }: LocationMod
 
     useEffect(() => {
         if (isOpen) {
-            // Fetch cities and goals
-            fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`)
-                .then(res => res.json())
-                .then(data => setCities(data))
-            
-            fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`)
-                .then(res => res.json())
-                .then(data => setGoals(data))
+            const fetchLocations = async () => {
+                const fallbackCities = [{ id: 1, name: 'Mumbai' }, { id: 2, name: 'Bengaluru' }, { id: 3, name: 'Delhi' }, { id: 4, name: 'Pune' }]
+                const fallbackGoals = [{ id: 1, name: 'Engineering' }, { id: 2, name: 'Management' }, { id: 3, name: 'Medical' }, { id: 4, name: 'Science' }]
+                
+                try {
+                    const [citiesRes, goalsRes] = await Promise.all([
+                        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`),
+                        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`)
+                    ])
+                    
+                    if (citiesRes.ok) {
+                        setCities(await citiesRes.json())
+                    } else {
+                        setCities(fallbackCities)
+                    }
+                    
+                    if (goalsRes.ok) {
+                        setGoals(await goalsRes.json())
+                    } else {
+                        setGoals(fallbackGoals)
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch location data:', error)
+                    setCities(fallbackCities)
+                    setGoals(fallbackGoals)
+                }
+            }
+            fetchLocations()
         }
     }, [isOpen])
 

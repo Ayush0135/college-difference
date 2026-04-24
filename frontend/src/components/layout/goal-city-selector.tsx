@@ -28,12 +28,19 @@ export default function GoalCitySelector() {
                     fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`),
                     fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`)
                 ])
-                const gData = await gRes.json()
-                const cData = await cRes.json()
+                
+                const fallbackGoals = [{name: 'Engineering'}, {name: 'Management'}, {name: 'Science'}, {name: 'Arts and Humanities'}, {name: 'Medical'}];
+                const fallbackCities = [{name: 'Bengaluru'}, {name: 'Delhi'}, {name: 'Mumbai'}, {name: 'Pune'}, {name: 'Chennai'}];
+
+                const gData = gRes.ok ? await gRes.json() : fallbackGoals;
+                const cData = cRes.ok ? await cRes.json() : fallbackCities;
+
                 setGoals(gData.map((g: any) => g.name))
                 setCities(cData.map((c: any) => c.name))
             } catch (err) {
                 console.error('Failed to fetch selector data:', err)
+                setGoals(['Engineering', 'Management', 'Science', 'Arts and Humanities', 'Medical'])
+                setCities(['Bengaluru', 'Delhi', 'Mumbai', 'Pune', 'Chennai'])
             } finally {
                 setLoading(false)
             }
