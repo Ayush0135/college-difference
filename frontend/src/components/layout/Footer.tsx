@@ -121,9 +121,9 @@ export default function Footer() {
                         &copy; {new Date().getFullYear()} Degree Difference Institutional Intelligence. All Rights Reserved.
                     </p>
                     <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-white/30">
-                        <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
-                        <Link href="#" className="hover:text-primary transition-colors">Digital Cookies</Link>
-                        <Link href="#" className="hover:text-primary transition-colors">Sitemap</Link>
+                        <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+                        <Link href="/cookies" className="hover:text-primary transition-colors">Digital Cookies</Link>
+                        <Link href="/sitemap.xml" className="hover:text-primary transition-colors">Sitemap</Link>
                         <Link href="/admin" className="hover:text-primary transition-colors">Admin Sign-in</Link>
                     </div>
                 </div>
