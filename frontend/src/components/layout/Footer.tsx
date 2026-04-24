@@ -124,7 +124,7 @@ export default function Footer() {
                         <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
                         <Link href="#" className="hover:text-primary transition-colors">Digital Cookies</Link>
                         <Link href="#" className="hover:text-primary transition-colors">Sitemap</Link>
-                        <Link href="#" className="hover:text-primary transition-colors">Expert Dashboard</Link>
+                        <Link href="/admin" className="hover:text-primary transition-colors">Admin Sign-in</Link>
                     </div>
                 </div>
             </div>
