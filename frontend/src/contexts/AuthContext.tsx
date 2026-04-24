@@ -37,6 +37,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true)
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
+    const logout = (redirect?: string) => {
+        setUser(null)
+        setToken(null)
+        localStorage.removeItem('auth_user')
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_expiry')
+        if (redirect) window.location.href = redirect
+    }
+
     useEffect(() => {
         // Load from local storage
         const storedUser = localStorage.getItem('auth_user')
@@ -50,7 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 if (parsedUser.role === 'admin' && storedExpiry) {
                     if (Date.now() > parseInt(storedExpiry)) {
                         console.log("Admin session expired")
-                        logout()
+                        logout('/admin')
                         setIsLoading(false)
                         return
                     }
@@ -82,21 +91,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthModalOpen(false)
     }
 
-    const logout = () => {
-        setUser(null)
-        setToken(null)
-        localStorage.removeItem('auth_user')
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('auth_expiry')
-    }
-
     // Periodic check for session expiry
     useEffect(() => {
         if (user?.role === 'admin') {
             const interval = setInterval(() => {
                 const storedExpiry = localStorage.getItem('auth_expiry')
                 if (storedExpiry && Date.now() > parseInt(storedExpiry)) {
-                    logout()
+                    logout('/admin')
                 }
             }, 10000) // Check every 10s
             return () => clearInterval(interval)
