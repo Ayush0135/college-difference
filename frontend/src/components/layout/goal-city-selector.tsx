@@ -37,6 +37,15 @@ export default function GoalCitySelector() {
 
                 setGoals(gData.map((g: any) => g.name))
                 setCities(cData.map((c: any) => c.name))
+                
+                // Auto-detect location if city is not set
+                if (selectedCity === 'Select City') {
+                    const hasAsked = localStorage.getItem('geo_asked')
+                    if (!hasAsked) {
+                        handleDetectLocation()
+                        localStorage.setItem('geo_asked', 'true')
+                    }
+                }
             } catch (err) {
                 console.error('Failed to fetch selector data:', err)
                 setGoals(['Engineering', 'Management', 'Science', 'Arts and Humanities', 'Medical'])
@@ -46,7 +55,7 @@ export default function GoalCitySelector() {
             }
         }
         fetchData()
-    }, [])
+    }, [selectedCity])
 
     const containerRef = useRef<HTMLDivElement>(null)
 
