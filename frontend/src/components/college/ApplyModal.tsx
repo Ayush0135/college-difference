@@ -60,7 +60,7 @@ export default function ApplyModal({ isOpen, onClose, collegeId, collegeName }: 
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone,
-                    degree: finalDegree,
+                    course_name: finalDegree,
                     college_id: collegeId === "general-counseling" ? null : collegeId
                 })
             })

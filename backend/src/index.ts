@@ -31,14 +31,18 @@ app.post('/auth/send-otp', async (c) => {
   if (!email) return c.json({ error: 'Email required' }, 400)
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  const supabase = getSupabase(c)
   const resend = new Resend(c.env.RESEND_API_KEY)
 
   try {
-    // 1. Save to Supabase
+    const supabase = getSupabase(c)
+    
+    // 1. Delete any existing OTPs for this email first (to prevent .single() errors)
+    await supabase.from('otps').delete().eq('email', email)
+
+    // 2. Save new OTP to Supabase
     const { error: dbError } = await supabase
       .from('otps')
-      .upsert({ email, otp, created_at: new Date().toISOString() })
+      .insert({ email, otp, created_at: new Date().toISOString() })
 
     if (dbError) throw dbError
 
@@ -108,6 +112,35 @@ app.get('/colleges', async (c) => {
   return c.json(data)
 })
 
+// COLLEGE DETAIL (Slug)
+app.get('/colleges/:slug', async (c) => {
+  const slug = c.req.param('slug')
+  const supabase = getSupabase(c)
+
+  // 1. Get College
+  const { data: college, error: collegeError } = await supabase
+    .from('colleges')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+
+  if (collegeError || !college) return c.json({ error: 'College not found' }, 404)
+
+  // 2. Get Related Data in Parallel
+  const [courses, hostels, reviews] = await Promise.all([
+    supabase.from('courses').select('*').eq('college_id', college.id),
+    supabase.from('hostels').select('*').eq('college_id', college.id),
+    supabase.from('reviews').select('*').eq('college_id', college.id).eq('is_verified', true)
+  ])
+
+  return c.json({
+    ...college,
+    courses: courses.data || [],
+    hostels: hostels.data || [],
+    reviews: reviews.data || []
+  })
+})
+
 // BANNERS
 app.get('/banners', async (c) => {
   const supabase = getSupabase(c)
@@ -133,8 +166,13 @@ app.get('/admin/counselling', async (c) => {
 })
 
 // APPLY (LEAD CAPTURE)
-app.post('/leads/apply', async (c) => {
+app.post('/leads', async (c) => {
   const body = await c.req.json()
+  // Ensure the degree field is mapped to the course_name column
+  if (body.degree && !body.course_name) {
+    body.course_name = body.degree;
+    delete body.degree;
+  }
   const supabase = getSupabase(c)
   const { data, error } = await supabase.from('leads').insert([body])
   if (error) return c.json({ error: error.message }, 500)
