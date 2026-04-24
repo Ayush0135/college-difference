@@ -22,7 +22,7 @@ export default function LoginReminder() {
         }, 15000) // 15 seconds
 
         return () => clearInterval(interval)
-    }, [user, isAuthModalOpen, openAuthModal, isLoading])
+    }, [user, isAuthModalOpen, openAuthModal, isLoading, pathname])
 
     return null // This component doesn't render anything itself
 }
