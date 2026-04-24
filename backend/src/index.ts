@@ -203,6 +203,16 @@ app.get('/admin/counselling', async (c) => {
   return c.json(data)
 })
 
+app.patch('/admin/counselling/:id', async (c) => {
+  const id = c.req.param('id')
+  const status = c.req.query('status')
+  const supabase = getSupabase(c)
+  if (!status) return c.json({ error: 'Status is required' }, 400)
+  const { error } = await supabase.from('counselling_requests').update({ status }).eq('id', id)
+  if (error) return c.json({ error: error.message }, 500)
+  return c.json({ success: true })
+})
+
 // ADMIN: COLLEGES (CRUD)
 app.post('/admin/colleges', async (c) => {
   try {

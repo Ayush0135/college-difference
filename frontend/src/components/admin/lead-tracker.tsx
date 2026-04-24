@@ -60,8 +60,8 @@ export default function LeadTracker() {
                 </div>
                 <div className="flex gap-4">
                     <div className="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl flex flex-col items-center">
-                        <span className="text-[10px] font-black uppercase text-slate-400">Total Leads</span>
-                        <span className="text-xl font-black text-secondary">{leads.length}</span>
+                        <span className="text-[10px] font-black uppercase text-slate-400">Action Required</span>
+                        <span className="text-xl font-black text-secondary">{leads.filter(l => l.status === 'new').length}</span>
                     </div>
                 </div>
             </div>
@@ -73,13 +73,18 @@ export default function LeadTracker() {
                             <tr className="bg-slate-50/50 border-b border-slate-100">
                                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Info</th>
                                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Institution</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Date Applied</th>
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">SLA Deadline</th>
                                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
                                 <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {leads.map((lead) => (
+                            {leads.filter(l => l.status === 'new').map((lead) => {
+                                const hoursElapsed = (new Date().getTime() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60);
+                                const isOverdue = hoursElapsed > 48;
+                                const hoursLeft = Math.max(0, Math.floor(48 - hoursElapsed));
+
+                                return (
                                 <motion.tr 
                                     layout 
                                     key={lead.id}
@@ -114,9 +119,15 @@ export default function LeadTracker() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <div className="flex items-center gap-2 text-slate-500 font-bold text-sm">
-                                            <Calendar size={14} className="text-slate-300" />
-                                            {new Date(lead.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        <div className={cn(
+                                            "flex items-center gap-2 font-bold text-sm",
+                                            isOverdue ? "text-red-500" : "text-amber-500"
+                                        )}>
+                                            <Clock size={14} className={isOverdue ? "text-red-400" : "text-amber-400"} />
+                                            {isOverdue ? "OVERDUE" : `${hoursLeft}h left`}
+                                        </div>
+                                        <div className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest flex items-center gap-1">
+                                            {new Date(lead.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
@@ -153,13 +164,13 @@ export default function LeadTracker() {
                                         </div>
                                     </td>
                                 </motion.tr>
-                            ))}
-                            {leads.length === 0 && (
+                            )})}
+                            {leads.filter(l => l.status === 'new').length === 0 && (
                                 <tr>
                                     <td colSpan={5} className="py-24 text-center">
                                         <div className="flex flex-col items-center gap-4 opacity-20">
-                                            <Users size={64} />
-                                            <p className="text-xl font-black italic">The applicant pool is currently empty.</p>
+                                            <CheckCircle2 size={64} className="text-emerald-500" />
+                                            <p className="text-xl font-black italic">Hooray! Inbox Zero achieved.</p>
                                         </div>
                                     </td>
                                 </tr>
