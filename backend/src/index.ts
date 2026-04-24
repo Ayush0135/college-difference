@@ -102,10 +102,12 @@ app.get('/colleges', async (c) => {
   const supabase = getSupabase(c)
   const city = c.req.query('city')
   const goal = c.req.query('goal')
+  const search = c.req.query('search')
 
-  let query = supabase.from('colleges').select('*')
-  if (city) query = query.eq('city', city)
-  // Add other filters as needed
+  let query = supabase.from('colleges').select('*').order('created_at', { ascending: false })
+  if (city) query = query.eq('location', city)
+  if (goal) query = query.eq('stream', goal)
+  if (search) query = query.ilike('name', `%${search}%`)
 
   const { data, error } = await query
   if (error) return c.json({ error: error.message }, 500)
@@ -149,6 +151,32 @@ app.get('/banners', async (c) => {
   return c.json(data)
 })
 
+// ADMIN: STATS
+app.get('/admin/stats', async (c) => {
+  const supabase = getSupabase(c)
+  try {
+    const [
+      { count: total_colleges },
+      { count: new_leads },
+      { count: new_counselling },
+      { count: resolved_requests }
+    ] = await Promise.all([
+      supabase.from('colleges').select('*', { count: 'exact', head: true }),
+      supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'new'),
+      supabase.from('counselling_requests').select('*', { count: 'exact', head: true }).eq('status', 'new'),
+      supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'processed')
+    ])
+    return c.json({
+      total_colleges: total_colleges || 0,
+      new_leads: new_leads || 0,
+      new_counselling: new_counselling || 0,
+      resolved_requests: resolved_requests || 0
+    })
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500)
+  }
+})
+
 // ADMIN: LEADS
 app.get('/admin/leads', async (c) => {
   const supabase = getSupabase(c)
@@ -157,12 +185,63 @@ app.get('/admin/leads', async (c) => {
   return c.json(data)
 })
 
+app.patch('/admin/leads/:id', async (c) => {
+  const id = c.req.param('id')
+  const status = c.req.query('status')
+  const supabase = getSupabase(c)
+  if (!status) return c.json({ error: 'Status is required' }, 400)
+  const { error } = await supabase.from('leads').update({ status }).eq('id', id)
+  if (error) return c.json({ error: error.message }, 500)
+  return c.json({ success: true })
+})
+
 // ADMIN: COUNSELLING
 app.get('/admin/counselling', async (c) => {
   const supabase = getSupabase(c)
   const { data, error } = await supabase.from('counselling_requests').select('*').order('created_at', { ascending: false })
   if (error) return c.json({ error: error.message }, 500)
   return c.json(data)
+})
+
+// ADMIN: COLLEGES (CRUD)
+app.post('/admin/colleges', async (c) => {
+  try {
+    const body = await c.req.json()
+    const supabase = getSupabase(c)
+    const { courses, hostels, reviews, id, ...collegeData } = body
+    
+    collegeData.created_at = new Date().toISOString()
+    const { data: college, error: collegeError } = await supabase.from('colleges').insert([collegeData]).select().single()
+    
+    if (collegeError) return c.json({ detail: collegeError.message }, 500)
+    return c.json({ success: true, slug: college.slug })
+  } catch (err: any) {
+    return c.json({ detail: err.message }, 500)
+  }
+})
+
+app.patch('/admin/colleges/:id', async (c) => {
+  try {
+    const id = c.req.param('id')
+    const body = await c.req.json()
+    const supabase = getSupabase(c)
+    const { courses, hostels, reviews, id: _droppedId, ...collegeData } = body
+
+    const { error: collegeError } = await supabase.from('colleges').update(collegeData).eq('id', id)
+    if (collegeError) return c.json({ detail: collegeError.message }, 500)
+    
+    return c.json({ success: true })
+  } catch (err: any) {
+    return c.json({ detail: err.message }, 500)
+  }
+})
+
+app.delete('/admin/colleges/:slug', async (c) => {
+  const slug = c.req.param('slug')
+  const supabase = getSupabase(c)
+  const { error } = await supabase.from('colleges').delete().eq('slug', slug)
+  if (error) return c.json({ error: error.message }, 500)
+  return c.json({ success: true })
 })
 
 // APPLY (LEAD CAPTURE)

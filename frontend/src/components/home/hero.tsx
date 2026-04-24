@@ -109,7 +109,7 @@ export default function Hero({
                                 Academic Excellence & Discovery
                             </span>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none">
+                        <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-none px-4">
                             Find Your Future <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">Education</span> in India
                         </h1>
@@ -120,9 +120,9 @@ export default function Hero({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="flex flex-wrap items-center justify-center gap-3 mb-6 relative z-30"
+                        className="flex flex-wrap items-center justify-center gap-2 mb-6 relative z-30 px-2"
                      >
-                        <span className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] italic mr-1">Trending Discovery:</span>
+                        <span className="hidden sm:inline text-white/40 text-[9px] font-black uppercase tracking-[0.2em] italic mr-1">Trending Discovery:</span>
                         {[
                             { label: 'MBA', goal: 'Management' },
                             { label: 'B.Tech', goal: 'Engineering' },
@@ -137,7 +137,7 @@ export default function Hero({
                                     e.stopPropagation();
                                     chip.goal ? onGoalSelect(chip.goal) : onCitySelect(chip.city!);
                                 }}
-                                className="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-white/80 text-[10px] font-black hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95 backdrop-blur-md cursor-pointer pointer-events-auto"
+                                className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/80 text-[10px] font-black hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95 backdrop-blur-md cursor-pointer pointer-events-auto"
                             >
                                 {chip.label}
                             </button>
@@ -145,13 +145,13 @@ export default function Hero({
                      </motion.div>
 
                     {/* Industrial Search Bar */}
-                    <div className="max-w-4xl mx-auto w-full relative z-40">
-                        <div className="flex bg-white rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-1.5 focus-within:ring-4 focus-within:ring-primary/20 transition-all">
-                            <div className="flex-1 flex items-center px-6 py-2">
-                                <Search className="text-slate-400 mr-4" size={24} />
+                    <div className="max-w-4xl mx-auto w-full relative z-40 px-4">
+                        <div className="flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-1.5 focus-within:ring-4 focus-within:ring-primary/20 transition-all">
+                            <div className="flex-1 flex items-center px-4 md:px-6 py-3">
+                                <Search className="text-slate-400 mr-3 md:mr-4 shrink-0" size={20} />
                                 <input 
                                     type="text" 
-                                    placeholder="Search for colleges, exams, courses and more.." 
+                                    placeholder="Search for colleges, exams.." 
                                     value={searchQuery}
                                     onChange={(e) => handleSearchInput(e.target.value)}
                                     onKeyDown={(e) => {
@@ -159,12 +159,12 @@ export default function Hero({
                                             handleSuggestionClick(suggestions[0].slug)
                                         }
                                     }}
-                                    className="w-full outline-none text-lg text-secondary placeholder:text-slate-400 font-medium"
+                                    className="w-full outline-none text-base md:text-lg text-secondary placeholder:text-slate-400 font-medium"
                                 />
                             </div>
                             <button 
                                 onClick={() => suggestions.length > 0 && handleSuggestionClick(suggestions[0].slug)}
-                                className="bg-primary hover:bg-primary/90 text-white font-black text-lg px-12 py-5 rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-primary/30 active:scale-95"
+                                className="bg-primary hover:bg-primary/90 text-white font-black text-base md:text-lg px-8 md:px-12 py-4 md:py-5 rounded-xl sm:rounded-r-xl transition-all uppercase tracking-wider shadow-lg shadow-primary/30 active:scale-95"
                             >
                                 Search
                             </button>

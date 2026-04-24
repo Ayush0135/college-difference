@@ -119,7 +119,16 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
                     reviews: formData.reviews.map((r: any) => ({ ...r, rating: Number(r.rating) }))
                 })
             })
-            const data = await res.json()
+            let data;
+            try {
+                data = await res.json()
+            } catch (jsonErr) {
+                console.error("Failed to parse JSON string. Cloudflare likely returned an HTML error page:", jsonErr)
+                alert("Server Connection Error: The platform backend failed to process this request or returned an invalid format. Details have been logged.")
+                setLoading(false)
+                return
+            }
+
             if (res.ok && data.success) {
                 setSuccess(true)
                 setCreatedSlug(initialData?.slug || data.slug)

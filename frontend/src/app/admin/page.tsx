@@ -206,7 +206,7 @@ export default function AdminDashboard() {
                         <p className="text-slate-400 text-sm font-medium">Manage and resolve all incoming student inquiries in real-time.</p>
                     </div>
                     
-                    <div className="flex bg-slate-50 p-1 rounded-xl">
+                    <div className="flex bg-slate-50 p-1 rounded-xl w-full overflow-x-auto whitespace-nowrap scrollbar-hide">
                         {[
                             { id: 'study-apps', label: 'Applications' },
                             { id: 'leads', label: 'Inquiries' },

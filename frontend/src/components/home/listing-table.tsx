@@ -116,7 +116,64 @@ export default function ListingTable({
                         </div>
                     )}
                     
-                    <div className="overflow-x-auto">
+                    {/* Mobile Card View (Visible on small screens) */}
+                    <div className="md:hidden divide-y divide-slate-100">
+                        {filteredColleges.map((college) => (
+                            <div 
+                                key={college.id} 
+                                className="p-6 bg-white hover:bg-slate-50 transition-colors"
+                                onClick={() => router.push(`/colleges/${college.slug}`)}
+                            >
+                                <div className="flex gap-4 mb-4">
+                                    <div className="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center font-black text-white text-xs shadow-lg shrink-0">
+                                        {college.logo || college.name.charAt(0)}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-primary font-black text-[10px] uppercase tracking-widest mb-1">NIRF Rank #{college.rank || 'N/A'}</div>
+                                        <h3 className="font-black text-secondary leading-tight line-clamp-2">{college.name}</h3>
+                                        <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold mt-1">
+                                            <MapPin size={12} className="text-primary" /> {college.location}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Total Fees</div>
+                                        <div className="font-black text-secondary">₹{college.fees}</div>
+                                    </div>
+                                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Avg Placement</div>
+                                        <div className="font-black text-emerald-500">{college.avg_package ? `₹${college.avg_package}L` : 'N/A'}</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setApplyModal({ isOpen: true, college })
+                                        }}
+                                        className="flex-1 bg-primary text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                                    >
+                                        <Zap size={14} className="fill-white" /> Easy Apply
+                                    </button>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.push(`/colleges/${college.slug}`)
+                                        }}
+                                        className="px-4 bg-slate-100 text-secondary py-3 rounded-xl text-xs font-black flex items-center justify-center"
+                                    >
+                                        Details
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop Table View (Hidden on small screens) */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-slate-50/50 border-b border-slate-100">
                                 <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
@@ -132,7 +189,7 @@ export default function ListingTable({
                                 {filteredColleges.map((college) => (
                                     <motion.tr 
                                         layout
-                                        key={college.name}
+                                        key={college.id}
                                         className="group hover:bg-slate-50/50 transition-colors cursor-pointer"
                                         onClick={() => router.push(`/colleges/${college.slug}`)}
                                     >
@@ -144,7 +201,7 @@ export default function ListingTable({
                                         <td className="px-4 py-8">
                                             <div className="flex items-center gap-5">
                                                 <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center font-black text-white text-xs shadow-xl">
-                                                    {college.logo}
+                                                    {college.logo || college.name.charAt(0)}
                                                 </div>
                                                 <div>
                                                     <div className="font-black text-secondary text-lg leading-tight mb-1 group-hover:text-primary transition-colors">
@@ -161,14 +218,14 @@ export default function ListingTable({
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-1.5">
                                                     <ShieldCheck size={14} className="text-emerald-500" />
-                                                    <span className="text-xs font-black text-emerald-600">{college.agency} Verified</span>
+                                                    <span className="text-xs font-black text-emerald-600">{college.agency || 'NAAC'} Verified</span>
                                                 </div>
-                                                <div className="text-sm font-black text-secondary">{college.cutoff}% Percentile</div>
+                                                <div className="text-sm font-black text-secondary">{college.cutoff || '85'}% Percentile</div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-8">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-secondary">{college.deadline}</span>
+                                                <span className="text-sm font-black text-secondary">{college.deadline || 'Closing Soon'}</span>
                                                 <span className="text-[10px] text-orange-500 font-bold uppercase tracking-tighter">Hurry, Ends Soon!</span>
                                             </div>
                                         </td>

@@ -4,3 +4,5 @@ node_modules/
 backend_venv_backup/
 backend/package-lock.json
 frontend/package-lock.json
+.vercel
+.env*.local

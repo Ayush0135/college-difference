@@ -25,6 +25,24 @@ export default function CollegeManager({ onEdit }: { onEdit: (college: any) => v
         }
     }
 
+    const handleDelete = async (slug: string) => {
+        if (!confirm('Are you sure you want to permanently delete this institution from the registry?')) return;
+        setEditSyncLoading(slug)
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/colleges/${slug}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (res.ok) fetchColleges()
+            else alert('Failed to successfully delete institution from database.')
+        } catch (err) {
+            console.error("Deletion exception:", err)
+            alert('Failed to connect to active registry server to process deletion.')
+        } finally {
+            setEditSyncLoading(null)
+        }
+    }
+
     const fetchColleges = async () => {
         setLoading(true)
         try {
@@ -132,7 +150,13 @@ export default function CollegeManager({ onEdit }: { onEdit: (college: any) => v
                                                 {editSyncLoading === college.slug ? <Loader2 size={18} className="animate-spin" /> : <Edit3 size={18} />}
                                             </button>
                                             <a href={`/colleges/${college.slug}`} target="_blank" className="p-2 text-slate-400 hover:text-secondary hover:bg-slate-100 rounded-lg transition-all"><ExternalLink size={18} /></a>
-                                            <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={18} /></button>
+                                            <button 
+                                                onClick={() => handleDelete(college.slug)} 
+                                                disabled={editSyncLoading === college.slug}
+                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

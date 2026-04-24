@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "degree-difference-api" generated at 2026-04-24T20:49:42.437Z.
