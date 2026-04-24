@@ -101,7 +101,7 @@ export default function AdminDashboard() {
         e.preventDefault()
         setAuthLoading(true); setAuthError('')
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/auth/send-otp`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: authEmail })
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
         e.preventDefault()
         setAuthLoading(true); setAuthError('')
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/auth/verify-otp`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: authEmail, code: authOtp })
