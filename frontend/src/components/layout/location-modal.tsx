@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Search, MapPin, Target, ChevronRight } from 'lucide-react'
+import { X, Search, MapPin, Target, ChevronRight, Compass } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface LocationModalProps {
@@ -17,6 +17,7 @@ export default function LocationModal({ isOpen, onClose, onSelect }: LocationMod
     const [selectedCity, setSelectedCity] = useState('')
     const [selectedGoal, setSelectedGoal] = useState('')
     const [searchCity, setSearchCity] = useState('')
+    const [loadingLocation, setLoadingLocation] = useState(false)
 
     useEffect(() => {
         if (isOpen) {
@@ -58,6 +59,39 @@ export default function LocationModal({ isOpen, onClose, onSelect }: LocationMod
         }
     }
 
+    const handleDetectLocation = () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser')
+            return
+        }
+
+        setLoadingLocation(true)
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`)
+                    const data = await res.json()
+                    const city = data.city || data.locality || data.principalSubdivision
+                    if (city) {
+                        setSelectedCity(city)
+                    } else {
+                        alert('Could not determine city from your location')
+                    }
+                } catch (error) {
+                    console.error('Error detecting location', error)
+                    alert('Error connecting to location service')
+                } finally {
+                    setLoadingLocation(false)
+                }
+            },
+            (error) => {
+                console.error('Error getting location', error)
+                setLoadingLocation(false)
+                alert('Permission denied or unable to retrieve your location')
+            }
+        )
+    }
+
     const filteredCities = cities.filter(c => 
         c.name.toLowerCase().includes(searchCity.toLowerCase())
     )
@@ -90,7 +124,7 @@ export default function LocationModal({ isOpen, onClose, onSelect }: LocationMod
                             <div className="space-y-2">
                                 {goals.map(goal => (
                                     <button
-                                        key={goal.id}
+                                        key={goal.name}
                                         onClick={() => setSelectedGoal(goal.name)}
                                         className={cn(
                                             "w-full flex items-center justify-between p-4 rounded-xl transition-all font-bold text-sm",
@@ -118,7 +152,7 @@ export default function LocationModal({ isOpen, onClose, onSelect }: LocationMod
                                 </button>
                             </div>
 
-                            <div className="relative mb-6">
+                            <div className="relative mb-4">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                 <input 
                                     type="text"
@@ -128,11 +162,20 @@ export default function LocationModal({ isOpen, onClose, onSelect }: LocationMod
                                     className="w-full bg-slate-50 rounded-xl py-3.5 pl-12 pr-4 text-sm outline-none focus:ring-2 ring-primary/20 transition-all font-medium"
                                 />
                             </div>
+                            
+                            <button 
+                                onClick={handleDetectLocation}
+                                disabled={loadingLocation}
+                                className="w-full flex items-center justify-center gap-2 mb-6 p-3 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-bold hover:bg-emerald-100 border border-emerald-100 transition-colors disabled:opacity-50"
+                            >
+                                <Compass size={16} className={loadingLocation ? "animate-spin" : ""} />
+                                {loadingLocation ? 'Detecting Location...' : 'Auto Detect My Location'}
+                            </button>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                                 {filteredCities.map(city => (
                                     <button
-                                        key={city.id}
+                                        key={city.name}
                                         onClick={() => setSelectedCity(city.name)}
                                         className={cn(
                                             "p-3 rounded-lg text-xs font-bold transition-all border text-center",

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, MapPin, X, Check, ChevronDown } from 'lucide-react'
+import { Search, MapPin, X, Check, ChevronDown, Compass } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -101,6 +101,41 @@ export default function GoalCitySelector() {
         updateUrl(goal, selectedCity)
     }
 
+    const [loadingLocation, setLoadingLocation] = useState(false)
+
+    const handleDetectLocation = () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser')
+            return
+        }
+
+        setLoadingLocation(true)
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`)
+                    const data = await res.json()
+                    const city = data.city || data.locality || data.principalSubdivision
+                    if (city) {
+                        handleSelectCity(city)
+                    } else {
+                        alert('Could not determine city from your location')
+                    }
+                } catch (error) {
+                    console.error('Error detecting location', error)
+                    alert('Error connecting to location service')
+                } finally {
+                    setLoadingLocation(false)
+                }
+            },
+            (error) => {
+                console.error('Error getting location', error)
+                setLoadingLocation(false)
+                alert('Permission denied or unable to retrieve your location')
+            }
+        )
+    }
+
     return (
         <div className="relative" ref={containerRef}>
             <div 
@@ -171,19 +206,29 @@ export default function GoalCitySelector() {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-                                        <input 
-                                            autoFocus
-                                            type="text"
-                                            placeholder="Search city..."
-                                            value={search}
-                                            onChange={(e) => setSearch(e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white outline-none focus:border-emerald-500/50 transition-colors"
-                                        />
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
+                                            <input 
+                                                autoFocus
+                                                type="text"
+                                                placeholder="Search city..."
+                                                value={search}
+                                                onChange={(e) => setSearch(e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white outline-none focus:border-emerald-500/50 transition-colors"
+                                            />
+                                        </div>
                                     </div>
+                                    <button 
+                                        onClick={handleDetectLocation}
+                                        disabled={loadingLocation}
+                                        className="w-full flex items-center justify-center gap-2 p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                                    >
+                                        <Compass size={14} className={loadingLocation ? "animate-spin" : ""} />
+                                        {loadingLocation ? 'Detecting Location...' : 'Auto Detect My Location'}
+                                    </button>
 
-                                    <div className="grid grid-cols-2 gap-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-1">
+                                    <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
                                         {filteredCities.map(city => (
                                             <button 
                                                 key={city}
