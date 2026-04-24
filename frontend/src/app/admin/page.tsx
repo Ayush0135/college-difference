@@ -126,9 +126,9 @@ export default function AdminDashboard() {
             })
             const data = await res.json()
             if (res.ok && data.token) {
-                // Pipe verification seamlessly to global AuthContext
-                login(data.user, data.token)
-            } else setAuthError(data.detail || "Invalid OTP")
+                // Pipe verification seamlessly to global AuthContext, enforcing admin role for this portal
+                login({ ...data.user, role: 'admin' }, data.token)
+            } else setAuthError(data.error || data.detail || "Invalid OTP")
         } catch {
             setAuthError("Server Connection Failed")
         }
