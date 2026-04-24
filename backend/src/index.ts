@@ -179,4 +179,32 @@ app.post('/leads', async (c) => {
   return c.json({ message: 'Application submitted successfully', data })
 })
 
+// LOCATIONS & GOALS
+app.get('/locations/cities', async (c) => {
+  const supabase = getSupabase(c)
+  const { data, error } = await supabase.from('colleges').select('location')
+  if (error) return c.json({ error: error.message }, 500)
+  
+  // Extract unique cities (taking first part before comma if exists)
+  const uniqueCities = [...new Set(data.map((item: any) => {
+    if (!item.location) return null;
+    return item.location.split(',')[0].trim()
+  }).filter(Boolean))]
+  
+  return c.json(uniqueCities.map(name => ({ name })))
+})
+
+app.get('/locations/goals', async (c) => {
+  const supabase = getSupabase(c)
+  const { data, error } = await supabase.from('colleges').select('stream')
+  if (error) return c.json({ error: error.message }, 500)
+  
+  const uniqueGoals = [...new Set(data.map((item: any) => item.stream?.trim()).filter(Boolean))]
+  return c.json(uniqueGoals.map(name => ({ name })))
+})
+
+app.post('/locations/save-preference', async (c) => {
+  return c.json({ success: true, message: 'Preference saved locally' })
+})
+
 export default app
