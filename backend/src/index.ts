@@ -26,14 +26,43 @@ const getSupabase = (c: any) => createClient(c.env.SUPABASE_URL, c.env.SUPABASE_
 // Root
 app.get('/', (c) => c.json({ status: 'ok', engine: 'Hono (Edge)' }))
 
-// SEND OTP
+// SEND OTP — Public (for regular user login on main site)
 app.post('/auth/send-otp', async (c) => {
   const { email } = await c.req.json()
   if (!email) return c.json({ error: 'Email required' }, 400)
 
   const supabase = getSupabase(c)
-  
-  // GATEKEEPER: Check if authorized
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  const resend = new Resend(c.env.RESEND_API_KEY)
+
+  try {
+    await supabase.from('otps').delete().eq('email', email)
+    const { error: dbError } = await supabase
+      .from('otps')
+      .insert({ email, otp, created_at: new Date().toISOString() })
+    if (dbError) throw dbError
+
+    const { error: mailError } = await resend.emails.send({
+      from: c.env.RESEND_FROM_EMAIL || 'auth@degreedifference.com',
+      to: [email],
+      subject: 'Your Login OTP for Degree Difference',
+      html: `<strong>Your OTP is: ${otp}</strong><p>This code expires in 10 minutes.</p>`,
+    })
+    if (mailError) throw mailError
+    return c.json({ message: 'OTP sent successfully' })
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500)
+  }
+})
+
+// SEND OTP — Admin (gated, only for authorized administrators)
+app.post('/auth/admin/send-otp', async (c) => {
+  const { email } = await c.req.json()
+  if (!email) return c.json({ error: 'Email required' }, 400)
+
+  const supabase = getSupabase(c)
+
+  // GATEKEEPER: Only Supreme Admin or whitelisted admins can proceed
   if (email !== SUPREME_ADMIN) {
     const { data: authUser, error: authError } = await supabase
       .from('admin_users')
@@ -50,26 +79,19 @@ app.post('/auth/send-otp', async (c) => {
   const resend = new Resend(c.env.RESEND_API_KEY)
 
   try {
-    // 1. Delete any existing OTPs for this email first (to prevent .single() errors)
     await supabase.from('otps').delete().eq('email', email)
-
-    // 2. Save new OTP to Supabase
     const { error: dbError } = await supabase
       .from('otps')
       .insert({ email, otp, created_at: new Date().toISOString() })
-
     if (dbError) throw dbError
 
-    // 2. Send via Resend
-    const { data, error: mailError } = await resend.emails.send({
+    const { error: mailError } = await resend.emails.send({
       from: c.env.RESEND_FROM_EMAIL || 'auth@degreedifference.com',
       to: [email],
-      subject: 'Your Login OTP for Degree Difference',
-      html: `<strong>Your OTP is: ${otp}</strong><p>This code expires in 10 minutes.</p>`,
+      subject: 'Admin Login OTP — Degree Difference',
+      html: `<strong>Your Admin OTP is: ${otp}</strong><p>This code expires in 10 minutes. Do not share this with anyone.</p>`,
     })
-
     if (mailError) throw mailError
-
     return c.json({ message: 'OTP sent successfully' })
   } catch (err: any) {
     return c.json({ error: err.message }, 500)

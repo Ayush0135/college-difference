@@ -102,7 +102,7 @@ export default function AdminDashboard() {
         e.preventDefault()
         setAuthLoading(true); setAuthError('')
         try {
-            const res = await fetch(`${API_URL}/auth/send-otp`, {
+            const res = await fetch(`${API_URL}/auth/admin/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: authEmail })
