@@ -1,5 +1,5 @@
-import { API_URL } from '@/lib/api'
 'use client'
+import { API_URL } from '@/lib/api'
 
 import { useState } from 'react'
 import { Plus, Trash2, ChevronRight, ChevronLeft, Upload, CheckCircle2, Loader2 } from 'lucide-react'

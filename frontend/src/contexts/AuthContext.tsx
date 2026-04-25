@@ -14,7 +14,7 @@ interface AuthContextType {
     token: string | null
     isLoading: boolean
     login: (user: User, token: string) => void
-    logout: () => void
+    logout: (redirect?: string) => void
     isAuthModalOpen: boolean
     openAuthModal: () => void
     closeAuthModal: () => void
@@ -25,7 +25,7 @@ const AuthContext = createContext<AuthContextType>({
     token: null,
     isLoading: true,
     login: () => {},
-    logout: () => {},
+    logout: (_redirect?: string) => {},
     isAuthModalOpen: false,
     openAuthModal: () => {},
     closeAuthModal: () => {},

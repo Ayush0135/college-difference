@@ -1,10 +1,10 @@
 'use client'
+import { API_URL } from '@/lib/api'
 
 import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, ExternalLink, ShieldCheck, Clock, TrendingUp, X, CheckCircle2, Zap, ArrowRight, Loader2, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { API_URL } from '@/lib/api'
 import { useRouter, useSearchParams } from 'next/navigation'
 import ApplyModal from '../college/ApplyModal'
 

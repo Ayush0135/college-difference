@@ -1,5 +1,5 @@
-import { API_URL } from '@/lib/api'
 'use client'
+import { API_URL } from '@/lib/api'
 
 import { useState, useEffect, useRef } from 'react'
 import { Search, MapPin, X, Check, ChevronDown, Compass } from 'lucide-react'

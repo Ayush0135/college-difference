@@ -1,9 +1,9 @@
 'use client'
+import { API_URL } from '@/lib/api'
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Phone, User, Mail, GraduationCap, CheckCircle2, Loader2 } from 'lucide-react'
-import { API_URL } from '@/lib/api'
 
 export default function CounsellingSection() {
     const [loading, setLoading] = useState(false)

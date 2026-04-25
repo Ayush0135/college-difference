@@ -1,5 +1,5 @@
-import { API_URL } from '@/lib/api'
 'use client'
+import { API_URL } from '@/lib/api'
 
 import { useState, useEffect } from 'react'
 import { CheckCircle, XCircle, MessageSquare } from 'lucide-react'

@@ -1,10 +1,10 @@
 'use client'
+import { API_URL } from '@/lib/api'
 
 import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Plus, MessageSquare, UploadCloud, Users, Lock, ShieldAlert, CheckCircle2, GraduationCap } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { API_URL } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import CollegeForm from "@/components/admin/college-form"
 import ReviewModerator from "@/components/admin/review-moderator"

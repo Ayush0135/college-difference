@@ -67,7 +67,7 @@ export default function Navbar() {
                                     </span>
                                     <span className="font-medium text-[10px] md:text-xs truncate max-w-[60px] md:max-w-[100px]">{user.email.split('@')[0]}</span>
                                 </div>
-                                <button onClick={logout} className="text-white/60 hover:text-red-400 transition-colors">
+                                <button onClick={() => logout()} className="text-white/60 hover:text-red-400 transition-colors">
                                     <LogOut size={18} />
                                 </button>
                             </div>

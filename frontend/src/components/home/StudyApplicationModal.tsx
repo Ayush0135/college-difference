@@ -1,10 +1,10 @@
 'use client'
+import { API_URL } from '@/lib/api'
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle2, Loader2, Send, GraduationCap, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { API_URL } from '@/lib/api'
 
 export default function StudyApplicationModal({ 
     isOpen, 
