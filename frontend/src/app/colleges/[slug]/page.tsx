@@ -1,10 +1,11 @@
 import { Metadata } from 'next'
 import CollegeDetailView from '@/components/college/CollegeDetailView'
 import Link from 'next/link'
+import { API_URL } from '@/lib/api'
 
 async function getCollege(slug: string) {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges/${slug}`, {
+        const res = await fetch(`${API_URL}/colleges/${slug}`, {
             next: { revalidate: 3600 } // Cache for 1 hour
         })
         if (!res.ok) return null

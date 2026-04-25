@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, ExternalLink, ShieldCheck, Clock, TrendingUp, X, CheckCircle2, Zap, ArrowRight, Loader2, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { API_URL } from '@/lib/api'
 import { useRouter, useSearchParams } from 'next/navigation'
 import ApplyModal from '../college/ApplyModal'
 
@@ -34,7 +35,7 @@ export default function ListingTable({
     useEffect(() => {
         setLoading(true)
         const cityParam = urlCity ? `&city=${urlCity}` : ''
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges?goal=${activeCategory}&search=${search}${cityParam}`)
+        fetch(`${API_URL}/colleges?goal=${activeCategory}&search=${search}${cityParam}`)
             .then(res => res.json())
             .then(data => {
                 setColleges(data)

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 
+import { API_URL } from '@/lib/api'
+
 export async function GET() {
     const baseUrl = 'https://degreedifference.com'
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'https://degree-difference-api.pathakayush715.workers.dev'
+    const backendUrl = API_URL
     
     // Fetch colleges with a timeout and fallback
     let collegeLinks = ''

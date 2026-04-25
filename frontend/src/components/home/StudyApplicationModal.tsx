@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle2, Loader2, Send, GraduationCap, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { API_URL } from '@/lib/api'
 
 export default function StudyApplicationModal({ 
     isOpen, 
@@ -26,7 +27,7 @@ export default function StudyApplicationModal({
         e.preventDefault()
         setLoading(true)
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/study-applications`, {
+            const res = await fetch(`${API_URL}/study-applications`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

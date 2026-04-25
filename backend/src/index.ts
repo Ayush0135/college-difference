@@ -13,6 +13,7 @@ type Bindings = {
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
+const SUPREME_ADMIN = 'ayush.kashyap7155@gmail.com'
 
 // Middleware
 app.use('*', cors())
@@ -30,12 +31,25 @@ app.post('/auth/send-otp', async (c) => {
   const { email } = await c.req.json()
   if (!email) return c.json({ error: 'Email required' }, 400)
 
+  const supabase = getSupabase(c)
+  
+  // GATEKEEPER: Check if authorized
+  if (email !== SUPREME_ADMIN) {
+    const { data: authUser, error: authError } = await supabase
+      .from('admin_users')
+      .select('email')
+      .eq('email', email)
+      .single()
+
+    if (authError || !authUser) {
+      return c.json({ error: 'Access Denied: You are not an authorized administrator. Please contact the Supreme Admin for access.' }, 403)
+    }
+  }
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
   const resend = new Resend(c.env.RESEND_API_KEY)
 
   try {
-    const supabase = getSupabase(c)
-    
     // 1. Delete any existing OTPs for this email first (to prevent .single() errors)
     await supabase.from('otps').delete().eq('email', email)
 
@@ -105,9 +119,18 @@ app.get('/colleges', async (c) => {
   const search = c.req.query('search')
 
   let query = supabase.from('colleges').select('*').order('created_at', { ascending: false })
-  if (city) query = query.eq('location', city)
-  if (goal) query = query.eq('stream', goal)
-  if (search) query = query.ilike('name', `%${search}%`)
+  
+  if (city && city !== 'All') {
+    query = query.ilike('location', `%${city}%`)
+  }
+  
+  if (goal && goal !== 'All') {
+    query = query.eq('stream', goal)
+  }
+  
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`)
+  }
 
   const { data, error } = await query
   if (error) return c.json({ error: error.message }, 500)
@@ -149,6 +172,40 @@ app.get('/banners', async (c) => {
   const { data, error } = await supabase.from('banners').select('*').eq('is_active', true)
   if (error) return c.json({ error: error.message }, 500)
   return c.json(data)
+})
+
+// --- ADMIN SECURITY MIDDLEWARE ---
+app.use('/admin/*', async (c, next) => {
+  const authHeader = c.req.header('Authorization')
+  if (!authHeader) return c.json({ error: 'Authorization header missing' }, 401)
+  
+  const token = authHeader.split(' ')[1]
+  try {
+    const secret = new TextEncoder().encode(c.env.JWT_SECRET || 'fallback-secret-change-me')
+    const { payload } = await jose.jwtVerify(token, secret)
+    const email = payload.email as string
+
+    if (email === SUPREME_ADMIN) {
+      c.set('adminEmail', email)
+      return await next()
+    }
+
+    const supabase = getSupabase(c)
+    const { data: authUser, error: authError } = await supabase
+      .from('admin_users')
+      .select('email')
+      .eq('email', email)
+      .single()
+
+    if (authError || !authUser) {
+      return c.json({ error: 'Forbidden: Your administrative access has been revoked or is not yet authorized.' }, 403)
+    }
+
+    c.set('adminEmail', email)
+    await next()
+  } catch (err) {
+    return c.json({ error: 'Invalid or expired session' }, 401)
+  }
 })
 
 // ADMIN: STATS
@@ -294,6 +351,88 @@ app.get('/locations/goals', async (c) => {
 
 app.post('/locations/save-preference', async (c) => {
   return c.json({ success: true, message: 'Preference saved locally' })
+})
+
+// ADMIN: DELEGATE AUTHORITY
+app.post('/admin/team', async (c) => {
+  const requesterEmail = (c as any).get('adminEmail')
+  if (requesterEmail !== SUPREME_ADMIN) {
+    return c.json({ error: 'Unauthorized: Only the Supreme Admin can delegate access.' }, 401)
+  }
+
+  const { email } = await c.req.json()
+  if (!email) return c.json({ error: 'Email to authorize is required' }, 400)
+
+  const supabase = getSupabase(c)
+
+  // Check if already exists
+  const { data: existing } = await supabase
+    .from('admin_users')
+    .select('email')
+    .eq('email', email)
+    .single()
+
+  if (existing) {
+    return c.json({ success: true, message: `${email} is already an authorized administrator.` })
+  }
+
+  const { error } = await supabase
+    .from('admin_users')
+    .insert({ email, granted_by: requesterEmail })
+
+  if (error) return c.json({ error: error.message }, 500)
+  return c.json({ success: true, message: `${email} is now an authorized administrator.` })
+})
+
+// ADMIN: REVOKE ACCESS
+app.delete('/admin/team', async (c) => {
+  const requesterEmail = (c as any).get('adminEmail')
+  if (requesterEmail !== SUPREME_ADMIN) {
+    return c.json({ error: 'Unauthorized: Only the Supreme Admin can revoke access.' }, 401)
+  }
+
+  const { email } = await c.req.json()
+  if (!email || email === SUPREME_ADMIN) {
+    return c.json({ error: 'Cannot remove the Supreme Admin.' }, 400)
+  }
+
+  const supabase = getSupabase(c)
+  const { error } = await supabase.from('admin_users').delete().eq('email', email)
+  if (error) return c.json({ error: error.message }, 500)
+  return c.json({ success: true, message: `${email} has been revoked.` })
+})
+
+// ONE-TIME BOOTSTRAP — seeds Supreme Admin using service role key
+app.get('/bootstrap-admin-setup', async (c) => {
+  const token = c.req.query('token')
+  if (token !== 'dd-setup-2026') return c.json({ error: 'Invalid token' }, 403)
+
+  const supabase = getSupabase(c)
+
+  // Insert Supreme Admin — service role key bypasses RLS
+  const { error: insertError } = await supabase
+    .from('admin_users')
+    .upsert({ 
+      email: SUPREME_ADMIN, 
+      granted_by: 'system' 
+    }, { onConflict: 'email', ignoreDuplicates: false })
+
+  if (insertError) {
+    return c.json({ 
+      error: insertError.message, 
+      hint: 'Service role key may be wrong. Go to Supabase Dashboard > Settings > API and check the service_role key.',
+      supabase_url: c.env.SUPABASE_URL
+    }, 500)
+  }
+
+  // Verify the insert worked
+  const { data: admins } = await supabase.from('admin_users').select('email')
+
+  return c.json({ 
+    success: true, 
+    message: 'Supreme Admin seeded successfully!',
+    admins 
+  })
 })
 
 export default app

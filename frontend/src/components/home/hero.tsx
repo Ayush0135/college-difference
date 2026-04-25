@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Search, ChevronRight, BookOpen, Briefcase, Landmark, Palette, GraduationCap, MapPin } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { API_URL } from '@/lib/api'
 
 const slides = [
     { url: '/assets/hero/vit_vellore_building_1776026058352.png', location: 'VIT University, Vellore' },
@@ -59,7 +60,7 @@ export default function Hero({
 
     useEffect(() => {
         if (searchQuery.length > 2) {
-            fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges?search=${searchQuery}`)
+            fetch(`${API_URL}/colleges?search=${searchQuery}`)
                 .then(res => res.json())
                 .then(data => setSuggestions(data.slice(0, 5)))
                 .catch(err => console.error('Search error:', err))

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Plus, MessageSquare, UploadCloud, Users, Lock, ShieldAlert, CheckCircle2, GraduationCap } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { API_URL } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import CollegeForm from "@/components/admin/college-form"
 import ReviewModerator from "@/components/admin/review-moderator"
@@ -101,7 +102,7 @@ export default function AdminDashboard() {
         e.preventDefault()
         setAuthLoading(true); setAuthError('')
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/send-otp`, {
+            const res = await fetch(`${API_URL}/auth/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: authEmail })
@@ -119,7 +120,7 @@ export default function AdminDashboard() {
         e.preventDefault()
         setAuthLoading(true); setAuthError('')
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/verify-otp`, {
+            const res = await fetch(`${API_URL}/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: authEmail, code: authOtp })
@@ -216,7 +217,7 @@ export default function AdminDashboard() {
                             { id: 'create', label: 'Add College' },
                             { id: 'bulk', label: 'Import' },
                             { id: 'team', label: 'Team' }
-                        ].map(tab => (
+                        ].filter(tab => tab.id !== 'team' || user?.email === 'ayush.kashyap7155@gmail.com').map(tab => (
                             <button 
                                 key={tab.id}
                                 onClick={() => { setView(tab.id as any); setEditingCollege(null); }}
