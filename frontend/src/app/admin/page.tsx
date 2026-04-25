@@ -26,7 +26,7 @@ function TeamAccess() {
         e.preventDefault()
         setStatus("Authorizing...")
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/team`, {
+            const res = await fetch(`${API_URL}/admin/team`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ email })
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
 
     const refreshStats = () => {
         if (!token || user?.role !== 'admin') return
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/stats`, {
+        fetch(`${API_URL}/admin/stats`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())

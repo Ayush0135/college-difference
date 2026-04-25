@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -10,19 +11,19 @@ export default function ReviewModerator() {
     
     useEffect(() => {
         if (!token) return;
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/reviews/pending`, { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${API_URL}/admin/reviews/pending`, { headers: { 'Authorization': `Bearer ${token}` } })
             .then(res => res.json())
             .then(data => { if (!data.error && !data.detail) setReviews(data) })
             .catch(console.error)
     }, [token])
     
     const approve = async (id: string) => {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/reviews/${id}/approve`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } })
+        await fetch(`${API_URL}/admin/reviews/${id}/approve`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } })
         setReviews(reviews.filter(r => r.id !== id))
     }
     
     const reject = async (id: string) => {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/reviews/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
+        await fetch(`${API_URL}/admin/reviews/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
         setReviews(reviews.filter(r => r.id !== id))
     }
     

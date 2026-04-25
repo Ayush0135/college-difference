@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState } from 'react'
@@ -20,7 +21,7 @@ export default function BulkImporter() {
         fd.append('file', file)
         
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/colleges/bulk`, {
+            const res = await fetch(`${API_URL}/admin/colleges/bulk`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: fd

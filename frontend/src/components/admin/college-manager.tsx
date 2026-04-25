@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState, useEffect } from "react"
@@ -15,7 +16,7 @@ export default function CollegeManager({ onEdit }: { onEdit: (college: any) => v
     const handleEdit = async (slug: string) => {
         setEditSyncLoading(slug)
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges/${slug}`)
+            const res = await fetch(`${API_URL}/colleges/${slug}`)
             const data = await res.json()
             onEdit(data)
         } catch (err) {
@@ -29,7 +30,7 @@ export default function CollegeManager({ onEdit }: { onEdit: (college: any) => v
         if (!confirm('Are you sure you want to permanently delete this institution from the registry?')) return;
         setEditSyncLoading(slug)
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/colleges/${slug}`, {
+            const res = await fetch(`${API_URL}/admin/colleges/${slug}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             })
@@ -46,7 +47,7 @@ export default function CollegeManager({ onEdit }: { onEdit: (college: any) => v
     const fetchColleges = async () => {
         setLoading(true)
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/colleges`, {
+            const res = await fetch(`${API_URL}/colleges`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()

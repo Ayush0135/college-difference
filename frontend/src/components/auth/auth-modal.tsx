@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState } from 'react'
@@ -15,7 +16,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClos
         setLoading(true)
         // Call FastAPI Backend Wrapper
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/send-otp`, {
+            const res = await fetch(`${API_URL}/auth/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -33,7 +34,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClos
         setLoading(true)
         // Call FastAPI Backend Wrapper
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/verify-otp`, {
+            const res = await fetch(`${API_URL}/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code: otp })

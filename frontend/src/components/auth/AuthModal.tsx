@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState } from 'react'
@@ -23,7 +24,7 @@ export default function AuthModal() {
         setLoading(true)
         
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/send-otp`, {
+            const res = await fetch(`${API_URL}/auth/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -46,7 +47,7 @@ export default function AuthModal() {
         setLoading(true)
         
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/verify-otp`, {
+            const res = await fetch(`${API_URL}/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code: otp })
@@ -73,7 +74,7 @@ export default function AuthModal() {
         setLoading(true)
         
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/complete-onboarding`, {
+            const res = await fetch(`${API_URL}/auth/complete-onboarding`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, phone })

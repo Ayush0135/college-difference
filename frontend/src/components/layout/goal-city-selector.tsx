@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
@@ -40,7 +41,7 @@ export default function GoalCitySelector() {
 
         // Persist to database
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/save-preference`, {
+            await fetch(`${API_URL}/locations/save-preference`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -91,8 +92,8 @@ export default function GoalCitySelector() {
         const fetchData = async () => {
             try {
                 const [gRes, cRes] = await Promise.all([
-                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`),
-                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`)
+                    fetch(`${API_URL}/locations/goals`),
+                    fetch(`${API_URL}/locations/cities`)
                 ])
                 
                 const fallbackGoals = [{name: 'Engineering'}, {name: 'Management'}, {name: 'Science'}, {name: 'Arts and Humanities'}, {name: 'Medical'}];

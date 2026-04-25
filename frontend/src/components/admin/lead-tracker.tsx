@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState, useEffect } from "react"
@@ -14,7 +15,7 @@ export default function LeadTracker() {
     const fetchLeads = async () => {
         setLoading(true)
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/leads`, {
+            const res = await fetch(`${API_URL}/admin/leads`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()
@@ -32,7 +33,7 @@ export default function LeadTracker() {
 
     const updateStatus = async (leadId: string, newStatus: string) => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/leads/${leadId}?status=${newStatus}`, {
+            const res = await fetch(`${API_URL}/admin/leads/${leadId}?status=${newStatus}`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}` }
             })

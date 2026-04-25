@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState } from 'react'
@@ -102,8 +103,8 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
         setLoading(true)
         try {
             const url = initialData 
-                ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/colleges/${initialData.id}`
-                : `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/colleges`
+                ? `${API_URL}/admin/colleges/${initialData.id}`
+                : `${API_URL}/admin/colleges`
             
             const method = initialData ? 'PATCH' : 'POST'
 

@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState, useEffect } from "react"
@@ -14,7 +15,7 @@ export default function CounsellingTracker() {
     const fetchRequests = async () => {
         setLoading(true)
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/counselling`, {
+            const res = await fetch(`${API_URL}/admin/counselling`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()
@@ -28,7 +29,7 @@ export default function CounsellingTracker() {
 
     const updateStatus = async (requestId: string, newStatus: string) => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/counselling/${requestId}?status=${newStatus}`, {
+            const res = await fetch(`${API_URL}/admin/counselling/${requestId}?status=${newStatus}`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}` }
             })

@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -53,7 +54,7 @@ export default function ApplyModal({ isOpen, onClose, collegeId, collegeName }: 
         
         try {
             const finalDegree = formData.degree === 'Other' ? formData.otherDegree : formData.degree;
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/leads`, {
+            const res = await fetch(`${API_URL}/leads`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

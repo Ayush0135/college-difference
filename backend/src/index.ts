@@ -277,6 +277,8 @@ app.post('/admin/colleges', async (c) => {
     const supabase = getSupabase(c)
     const { courses, hostels, reviews, id, ...collegeData } = body
     
+    // Default to published so colleges appear on the main site immediately
+    if (!collegeData.status) collegeData.status = 'published'
     collegeData.created_at = new Date().toISOString()
     const { data: college, error: collegeError } = await supabase.from('colleges').insert([collegeData]).select().single()
     

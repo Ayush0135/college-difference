@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api'
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -27,8 +28,8 @@ export default function LocationModal({ isOpen, onClose, onSelect }: LocationMod
                 
                 try {
                     const [citiesRes, goalsRes] = await Promise.all([
-                        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/cities`),
-                        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/locations/goals`)
+                        fetch(`${API_URL}/locations/cities`),
+                        fetch(`${API_URL}/locations/goals`)
                     ])
                     
                     if (citiesRes.ok) {
