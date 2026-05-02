@@ -302,9 +302,22 @@ app.post('/admin/colleges', async (c) => {
     // Default to published so colleges appear on the main site immediately
     if (!collegeData.status) collegeData.status = 'published'
     collegeData.created_at = new Date().toISOString()
+    
     const { data: college, error: collegeError } = await supabase.from('colleges').insert([collegeData]).select().single()
     
     if (collegeError) return c.json({ detail: collegeError.message }, 500)
+    
+    // Insert related data
+    if (courses && courses.length > 0) {
+      await supabase.from('courses').insert(courses.map((c: any) => ({ ...c, college_id: college.id })))
+    }
+    if (hostels && hostels.length > 0) {
+      await supabase.from('hostels').insert(hostels.map((h: any) => ({ ...h, college_id: college.id })))
+    }
+    if (reviews && reviews.length > 0) {
+      await supabase.from('reviews').insert(reviews.map((r: any) => ({ ...r, college_id: college.id, is_verified: true })))
+    }
+
     return c.json({ success: true, slug: college.slug })
   } catch (err: any) {
     return c.json({ detail: err.message }, 500)
@@ -321,6 +334,20 @@ app.patch('/admin/colleges/:id', async (c) => {
     const { error: collegeError } = await supabase.from('colleges').update(collegeData).eq('id', id)
     if (collegeError) return c.json({ detail: collegeError.message }, 500)
     
+    // Replace related data (Delete old, insert new)
+    if (courses) {
+      await supabase.from('courses').delete().eq('college_id', id)
+      if (courses.length > 0) await supabase.from('courses').insert(courses.map((c: any) => ({ ...c, college_id: id })))
+    }
+    if (hostels) {
+      await supabase.from('hostels').delete().eq('college_id', id)
+      if (hostels.length > 0) await supabase.from('hostels').insert(hostels.map((h: any) => ({ ...h, college_id: id })))
+    }
+    if (reviews) {
+      await supabase.from('reviews').delete().eq('college_id', id)
+      if (reviews.length > 0) await supabase.from('reviews').insert(reviews.map((r: any) => ({ ...r, college_id: id, is_verified: true })))
+    }
+
     return c.json({ success: true })
   } catch (err: any) {
     return c.json({ detail: err.message }, 500)
