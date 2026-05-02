@@ -20,13 +20,20 @@ export default function ListingTable({
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    // Guard: never navigate to /colleges/undefined. Fallback to ID if slug is missing.
+    // Extreme robustness: ensure we have a valid target before opening
     const safeNavigate = (college: any) => {
-        const target = college.slug || college.id
-        if (!target || target === 'undefined' || target === 'null') {
-            alert('This college page is not available yet. Please try another college.')
+        if (!college) return
+        
+        // Log for debugging (user can check browser console)
+        console.log('Opening college:', { name: college.name, slug: college.slug, id: college.id })
+        
+        const target = (college.slug || college.id || '').toString().trim()
+        
+        if (!target || target === 'undefined' || target === 'null' || target === '') {
+            alert(`This college page is not available yet (Missing Slug/ID)`)
             return
         }
+        
         window.open(`/colleges/${target}`, '_blank')
     }
     

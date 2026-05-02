@@ -1,8 +1,15 @@
 node_modules/
+**/node_modules/
 .env
+**/ .env
 .next/
+**/.next/
 backend_venv_backup/
-backend/package-lock.json
-frontend/package-lock.json
 .vercel
+**/.vercel
 .env*.local
+**/.env*.local
+.wrangler/
+**/.wrangler/
+dist/
+**/dist/

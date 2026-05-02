@@ -93,8 +93,8 @@ export default async function CollegeDetailPage({ params }: { params: { slug: st
                             <span className="font-bold text-red-600">&quot;{rawSlug || 'EMPTY'}&quot;</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-slate-400">Slug Length:</span>
-                            <span className="font-bold text-slate-800">{rawSlug?.length || 0} characters</span>
+                            <span className="text-slate-400">Path:</span>
+                            <span className="font-bold text-slate-800">/colleges/{rawSlug || 'EMPTY'}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-slate-400">Validation:</span>

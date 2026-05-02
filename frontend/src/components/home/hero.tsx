@@ -88,8 +88,12 @@ export default function Hero({
     }
 
     const handleSuggestionClick = (item: any) => {
-        const target = item.slug || item.id
-        if (!target || target === 'undefined') {
+        if (!item) return
+        console.log('Search Suggestion Click:', { name: item.name, slug: item.slug, id: item.id })
+        
+        const target = (item.slug || item.id || '').toString().trim()
+        
+        if (!target || target === 'undefined' || target === '') {
             alert('This college page is not available yet.')
             return
         }
