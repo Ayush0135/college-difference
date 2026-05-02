@@ -161,7 +161,7 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
                 <CheckCircle2 size={64} className="mx-auto text-emerald-500" />
                 <h2 className="text-3xl font-black text-secondary">{initialData ? 'Intelligence Updated!' : 'College Published!'}</h2>
                 <p className="text-muted-foreground">{initialData ? 'Changes have been synchronized across the platform.' : 'The institution has been successfully added to the database and is now live.'}</p>
-                <button onClick={() => router.push(`/colleges/${formData.slug}`)} className="bg-primary text-white font-bold px-8 py-3 rounded-lg shadow-lg">
+                <button onClick={() => router.push(`/colleges/${createdSlug}`)} className="bg-primary text-white font-bold px-8 py-3 rounded-lg shadow-lg">
                     View Live Page
                 </button>
             </div>
