@@ -9,8 +9,11 @@ export const dynamic = 'force-dynamic'
 // Validate slug before ever hitting the API
 function isValidSlug(slug: string): boolean {
     if (!slug) return false
-    if (slug === 'undefined') return false
-    if (slug === 'null') return false
+    if (slug === 'undefined' || slug === 'null') return false
+    // Allow UUIDs even if they are long
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug)
+    if (isUUID) return true
+    
     if (slug.startsWith('http')) return false
     if (slug.startsWith('www')) return false
     if (slug.length > 200) return false
@@ -20,17 +23,24 @@ function isValidSlug(slug: string): boolean {
 async function getCollege(slug: string) {
     // Guard: never call the API with a bad slug
     if (!isValidSlug(slug)) {
+        console.error('Invalid slug blocked:', slug)
         return null
     }
     try {
         const url = `${API_URL}/colleges/${encodeURIComponent(slug)}`
         const res = await fetch(url, { cache: 'no-store' })
-        if (!res.ok) return null
+        if (!res.ok) {
+            const errorText = await res.text()
+            console.error('API Fetch Failed:', { url, status: res.status, errorText })
+            return null
+        }
         return res.json()
-    } catch {
+    } catch (err) {
+        console.error('Fetch exception:', err)
         return null
     }
 }
+
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     if (!isValidSlug(params.slug)) {
@@ -70,7 +80,7 @@ export default async function CollegeDetailPage({ params }: { params: { slug: st
                 <div className="text-6xl">🎓</div>
                 <h1 className="text-3xl font-black text-slate-800">College Not Found</h1>
                 <p className="text-slate-500 max-w-md">
-                    We couldn&apos;t find a college matching <code className="bg-slate-100 px-2 py-1 rounded text-sm">{params.slug}</code>. 
+                    We couldn&apos;t find a college matching <code className="bg-slate-100 px-2 py-1 rounded text-sm font-bold text-red-600">{params.slug || 'an empty link'}</code>. 
                     It may have been removed or the link may be incorrect.
                 </p>
                 <Link href="/" className="bg-primary text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all">
