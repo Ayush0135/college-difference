@@ -14,7 +14,7 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
     const [step, setStep] = useState(1)
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
-    const [createdSlug, setCreatedSlug] = useState('')
+    const [finalSlug, setFinalSlug] = useState('')
     
     const [formData, setFormData] = useState({
         id: initialData?.id || '',
@@ -131,8 +131,16 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
             }
 
             if (res.ok && data.success) {
+                // Compute slug from multiple fallbacks — never rely on a single source
+                // Priority: form's own slug field > API response slug > initialData slug
+                const resolvedSlug = (
+                    formData.slug ||
+                    data.slug ||
+                    initialData?.slug ||
+                    ''
+                ).trim()
+                setFinalSlug(resolvedSlug)
                 setSuccess(true)
-                setCreatedSlug(initialData?.slug || data.slug)
                 if (onSuccess) onSuccess()
             } else {
                 let errorMsg = 'Action failed'
@@ -156,14 +164,25 @@ export default function CollegeForm({ onSuccess, initialData }: { onSuccess?: ()
     }
 
     if (success) {
+        const liveUrl = `https://degreedifference.com/colleges/${finalSlug}`
         return (
             <div className="max-w-2xl mx-auto bg-card p-12 rounded-xl border border-border text-center space-y-6">
                 <CheckCircle2 size={64} className="mx-auto text-emerald-500" />
                 <h2 className="text-3xl font-black text-secondary">{initialData ? 'Intelligence Updated!' : 'College Published!'}</h2>
                 <p className="text-muted-foreground">{initialData ? 'Changes have been synchronized across the platform.' : 'The institution has been successfully added to the database and is now live.'}</p>
-                <button onClick={() => router.push(`/colleges/${createdSlug}`)} className="bg-primary text-white font-bold px-8 py-3 rounded-lg shadow-lg">
-                    View Live Page
-                </button>
+                {finalSlug ? (
+                    <div className="space-y-3">
+                        <p className="text-xs font-mono bg-slate-100 rounded-lg p-2 text-slate-600 break-all">{liveUrl}</p>
+                        <button 
+                            onClick={() => window.open(liveUrl, '_blank')}
+                            className="bg-primary text-white font-bold px-8 py-3 rounded-lg shadow-lg hover:opacity-90 transition-opacity"
+                        >
+                            View Live Page ↗
+                        </button>
+                    </div>
+                ) : (
+                    <p className="text-red-500 font-bold">Could not determine page URL. Check the Colleges tab to find your college.</p>
+                )}
             </div>
         )
     }

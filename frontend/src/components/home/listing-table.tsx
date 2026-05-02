@@ -19,6 +19,15 @@ export default function ListingTable({
 }) {
     const router = useRouter()
     const searchParams = useSearchParams()
+
+    // Guard: never navigate to /colleges/undefined
+    const safeNavigate = (slug: string | undefined | null) => {
+        if (!slug || slug === 'undefined' || slug === 'null' || slug.startsWith('http')) {
+            alert('This college page is not available yet. Please try another college.')
+            return
+        }
+        router.push(`/colleges/${slug}`)
+    }
     
     // Sync with URL
     const urlGoal = searchParams.get('goal') || initialCategory
@@ -120,7 +129,7 @@ export default function ListingTable({
                             <div 
                                 key={college.id} 
                                 className="p-4 bg-white hover:bg-slate-50 transition-colors"
-                                onClick={() => router.push(`/colleges/${college.slug}`)}
+                                onClick={() => safeNavigate(college.slug)}
                             >
                                 <div className="flex gap-3 mb-3">
                                     <div className="w-12 h-12 rounded border border-slate-200 flex items-center justify-center font-bold text-slate-400 text-xs shrink-0">
@@ -201,7 +210,7 @@ export default function ListingTable({
                                                 <div>
                                                     <div 
                                                         className="font-bold text-secondary text-base hover:text-primary cursor-pointer transition-colors"
-                                                        onClick={() => router.push(`/colleges/${college.slug}`)}
+                                                        onClick={() => safeNavigate(college.slug)}
                                                     >
                                                         {college.name}
                                                     </div>

@@ -74,7 +74,11 @@ export default function Hero({
         onSearchChange(val)
     }
 
-    const handleSuggestionClick = (slug: string) => {
+    const handleSuggestionClick = (slug: string | undefined | null) => {
+        if (!slug || slug === 'undefined' || slug.startsWith('http')) {
+            alert('This college page is not available yet.')
+            return
+        }
         router.push(`/colleges/${slug}`)
     }
 
