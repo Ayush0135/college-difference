@@ -50,6 +50,26 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CollegeDetailPage({ params }: { params: { slug: string } }) {
+    if (params.slug === "undefined") {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-red-50 p-8 text-center">
+                <h2 className="text-4xl font-black text-red-600 uppercase tracking-tighter italic">Browser Cache Issue Detected</h2>
+                <p className="text-xl text-red-800 font-bold max-w-2xl">
+                    Your browser is using an old, cached version of the Admin Panel that contains a known routing bug. 
+                </p>
+                <div className="bg-white text-slate-800 p-6 rounded-xl shadow-xl border border-red-200 max-w-2xl text-left space-y-4">
+                    <p><strong>To fix this immediately:</strong></p>
+                    <ol className="list-decimal pl-5 space-y-2 font-medium">
+                        <li>Go back to your Admin Panel tab.</li>
+                        <li><strong>HARD REFRESH the page</strong> (Press <kbd className="bg-slate-100 px-2 rounded border">Cmd + Shift + R</kbd> on Mac or <kbd className="bg-slate-100 px-2 rounded border">Ctrl + F5</kbd> on Windows).</li>
+                        <li>Add the college again.</li>
+                    </ol>
+                    <p className="text-sm text-slate-500 italic mt-4">The bug has already been fixed on the server, but your browser hasn't downloaded the new code yet.</p>
+                </div>
+            </div>
+        )
+    }
+
     const college = await getCollege(params.slug)
 
     if (!college || college._error) {
