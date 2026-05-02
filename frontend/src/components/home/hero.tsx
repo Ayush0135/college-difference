@@ -79,7 +79,7 @@ export default function Hero({
             alert('This college page is not available yet.')
             return
         }
-        router.push(`/colleges/${slug}`)
+        window.open(`/colleges/${slug}`, '_blank')
     }
 
     return (

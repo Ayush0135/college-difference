@@ -26,7 +26,7 @@ export default function ListingTable({
             alert('This college page is not available yet. Please try another college.')
             return
         }
-        router.push(`/colleges/${slug}`)
+        window.open(`/colleges/${slug}`, '_blank')
     }
     
     // Sync with URL
