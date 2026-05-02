@@ -7,21 +7,23 @@ export const dynamic = 'force-dynamic'
 
 async function getCollege(slug: string) {
     try {
-        const res = await fetch(`${API_URL}/colleges/${slug}`, {
+        const url = `${API_URL}/colleges/${slug}`;
+        const res = await fetch(url, {
             cache: 'no-store'
         })
-        if (!res.ok) return null
+        if (!res.ok) {
+            return { _error: true, status: res.status, url: url, text: await res.text() }
+        }
         return res.json()
-    } catch (err) {
-        console.error("SEO Fetch Error:", err)
-        return null
+    } catch (err: any) {
+        return { _error: true, status: 500, url: `${API_URL}/colleges/${slug}`, text: err.message }
     }
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const college = await getCollege(params.slug)
     
-    if (!college) {
+    if (!college || college._error) {
         return {
             title: "College Not Found | Degree Difference",
         }
@@ -50,10 +52,18 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function CollegeDetailPage({ params }: { params: { slug: string } }) {
     const college = await getCollege(params.slug)
 
-    if (!college) {
+    if (!college || college._error) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-slate-50">
+            <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-slate-50 p-4 text-center">
                 <h2 className="text-4xl font-black text-secondary uppercase tracking-tighter italic">404 - College Not Found</h2>
+                {college?._error && (
+                    <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm max-w-2xl break-all">
+                        <strong>Debug Info (Admin Only):</strong><br/>
+                        Status: {college.status}<br/>
+                        URL: {college.url}<br/>
+                        Response: {college.text}
+                    </div>
+                )}
                 <Link href="/" className="bg-primary text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all">
                     Back to Discovery
                 </Link>
