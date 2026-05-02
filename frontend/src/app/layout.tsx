@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/layout/navbar";
@@ -7,7 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
 import LoginReminder from "@/components/auth/LoginReminder";
 
-const inter = Inter({ subsets: ["latin"] });
+const roboto = Roboto({ weight: ['300', '400', '500', '700', '900'], subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Degree Difference | Find Your Future Institute",
   description: "Verified reviews, detailed fee structures and placement data for top Indian colleges. Make informed academic decisions with Degree Difference.",
@@ -43,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${roboto.className} antialiased bg-gray-50 text-gray-900`}>
         <AuthProvider>
             <Navbar />
             {children}

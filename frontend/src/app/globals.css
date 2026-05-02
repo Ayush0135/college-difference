@@ -1,29 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FFFFFF;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #FF7900; /* Vibrant Orange */
-  --primary-foreground: #ffffff;
-  --secondary: #0A192F; /* Deep Navy for Contrast */
-  --secondary-foreground: #ffffff;
-  --accent: #E8F5E9; /* Light Sage Green */
-  --accent-foreground: #2E7D32;
-  --muted: #F8FAFC;
-  --muted-foreground: #64748b;
-  --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
-  --border: #E0E7FF;
-  --input: #e2e8f0;
-  --ring: #FF7900;
-  --radius: 0.75rem;
-  
-  --sage-border: #C8E6C9;
-  --sage-bg: #F1F8F1;
+  --background: #F8FAFC; /* Light gray background like Collegedunia */
+  --foreground: #1E293B; /* Dark slate text */
+  --card: #FFFFFF;
+  --card-foreground: #1E293B;
+  --popover: #FFFFFF;
+  --popover-foreground: #1E293B;
+  --primary: #FF7043; /* Deep Orange for CTAs */
+  --primary-foreground: #FFFFFF;
+  --secondary: #1E3A8A; /* Strong Blue for headers/branding */
+  --secondary-foreground: #FFFFFF;
+  --accent: #E0F2FE; /* Light blue accent */
+  --accent-foreground: #0369A1;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #CBD5E1;
+  --ring: #FF7043;
+  --radius: 0.5rem;
 }
 
 .dark {

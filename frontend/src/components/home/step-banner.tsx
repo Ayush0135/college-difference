@@ -47,11 +47,10 @@ export default function StepBanner() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                         {/* Visual Left */}
                         <div className="lg:col-span-5 relative">
-                            <div className="absolute -inset-4 bg-primary/10 rounded-[3rem] blur-3xl" />
                             <motion.div 
-                                initial={{ opacity: 0, x: -50 }}
+                                initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
-                                className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-primary to-orange-400 aspect-[4/5] shadow-2xl"
+                                className="relative rounded-md overflow-hidden bg-slate-200 aspect-[4/5] shadow-md border border-slate-200"
                             >
                                 <Image 
                                     src="/assets/banners/step_banner_student.png" 
@@ -60,31 +59,31 @@ export default function StepBanner() {
                                     className="object-cover"
                                     priority
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                                <div className="absolute bottom-10 left-10 right-10">
-                                    <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl">
-                                        <div className="text-white font-black text-2xl tracking-tighter italic">Your Degree of Awesomeness.</div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent mix-blend-multiply" />
+                                <div className="absolute bottom-8 left-8 right-8">
+                                    <div className="bg-white/90 backdrop-blur-sm border border-white/20 p-4 rounded-md shadow-sm">
+                                        <div className="text-secondary font-bold text-xl leading-tight">Your Degree of Awesomeness.</div>
                                     </div>
                                 </div>
                             </motion.div>
                         </div>
 
                         {/* Steps Right */}
-                        <div className="lg:col-span-7 space-y-6">
+                        <div className="lg:col-span-7 space-y-4">
                             {steps.map((step, i) => (
                                 <motion.div 
                                     key={step.title}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 10 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.1 }}
-                                    className="group flex gap-6 p-6 md:p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all cursor-default"
+                                    className="group flex gap-4 p-5 bg-white rounded-md border border-slate-200 hover:shadow-md hover:border-primary/30 transition-all cursor-default"
                                 >
-                                    <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-500 shrink-0 self-start group-hover:scale-110 transition-transform">
-                                        <CheckCircle2 size={28} />
+                                    <div className="w-10 h-10 rounded bg-slate-50 flex items-center justify-center text-primary shrink-0 self-start group-hover:bg-primary/10 transition-colors">
+                                        <CheckCircle2 size={20} />
                                     </div>
                                     <div className="space-y-1">
-                                        <h3 className={`text-xl font-black ${step.color} tracking-tight`}>{step.title}</h3>
-                                        <p className="text-slate-500 font-medium leading-relaxed">{step.desc}</p>
+                                        <h3 className={`text-lg font-bold text-slate-800 tracking-tight`}>{step.title}</h3>
+                                        <p className="text-slate-500 text-sm leading-relaxed">{step.desc}</p>
                                     </div>
                                 </motion.div>
                             ))}
@@ -93,21 +92,19 @@ export default function StepBanner() {
 
                     {/* Action Bar */}
                     <motion.div 
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        className="mt-20 flex flex-col md:flex-row items-center justify-center gap-4"
+                        className="mt-12 flex flex-col md:flex-row items-center justify-center gap-4"
                     >
-                        <a href="tel:7090778035" className="flex items-center gap-4 bg-white border-2 border-slate-100 px-8 py-5 rounded-2xl shadow-lg hover:border-primary/20 transition-all">
-                            <Phone className="text-primary" />
-                            <span className="text-xl font-black text-secondary">7090778035</span>
+                        <a href="tel:7090778035" className="flex items-center gap-3 bg-white border border-slate-200 px-6 py-3 rounded-md hover:border-primary/50 transition-all text-slate-700">
+                            <Phone size={18} className="text-primary" />
+                            <span className="text-lg font-bold">7090778035</span>
                         </a>
                         <button 
                             onClick={() => setIsApplyOpen(true)}
-                            className="bg-primary hover:bg-primary/90 text-white font-black px-12 py-5 rounded-2xl text-xl shadow-xl shadow-primary/30 flex items-center gap-3 active:scale-95 transition-all"
+                            className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-3 rounded-md flex items-center gap-2 transition-all shadow-sm"
                         >
-                            <span className="flex items-center gap-3">
-                                <Zap size={24} className="fill-white" /> Apply Now
-                            </span>
+                            <Zap size={18} /> Apply Now
                         </button>
                     </motion.div>
 

@@ -80,8 +80,8 @@ export default function Hero({
 
     return (
         <div className="relative">
-            {/* Main Hero Section */}
-            <section className="relative h-[75vh] min-h-[600px] flex flex-col items-center justify-center pt-32 overflow-hidden">
+            {/* Main Hero Section - Collegedunia Style */}
+            <section className="relative h-[450px] md:h-[500px] flex flex-col items-center justify-center pt-24 overflow-hidden mt-[100px]">
                 {/* Background Image Slider */}
                 <div className="absolute inset-0 z-0">
                     <AnimatePresence mode="wait">
@@ -89,70 +89,38 @@ export default function Hero({
                             key={currentSlide}
                             src={slides[currentSlide].url}
                             alt="Campus" 
-                            initial={{ opacity: 0, scale: 1.1 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0 }}
+                            initial={{ opacity: 0.8 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0.8 }}
                             transition={{ duration: 1.2 }}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-center"
                         />
                     </AnimatePresence>
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/60" />
+                    <div className="absolute inset-0 bg-secondary/80 mix-blend-multiply" />
                 </div>
 
-                <div className="container mx-auto px-4 z-10 text-center space-y-12">
+                <div className="container mx-auto px-4 z-10 text-center space-y-6">
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6 flex flex-col items-center"
+                        className="space-y-4"
                     >
-                        <div className="flex items-center justify-center mb-2">
-                            <span className="inline-block text-emerald-400 font-bold tracking-[0.3em] uppercase text-xs bg-emerald-400/10 px-5 py-2.5 rounded-full border border-emerald-400/20 backdrop-blur-md">
-                                Academic Excellence & Discovery
-                            </span>
-                        </div>
-                        <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-none px-4">
-                            Find Your Future <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">Education</span> in India
+                        <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+                            Find Top Colleges, Exams, Courses & More
                         </h1>
                     </motion.div>
 
-                     {/* Trending Discovery Chips */}
-                     <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex flex-wrap items-center justify-center gap-2 mb-6 relative z-30 px-2"
-                     >
-                        <span className="hidden sm:inline text-white/40 text-[9px] font-black uppercase tracking-[0.2em] italic mr-1">Trending Discovery:</span>
-                        {[
-                            { label: 'MBA', goal: 'Management' },
-                            { label: 'B.Tech', goal: 'Engineering' },
-                            { label: 'Nursing', goal: 'Medical' },
-                            { label: 'Bengaluru', city: 'Bengaluru' }
-                        ].map((chip) => (
-                            <button 
-                                key={chip.label}
-                                type="button"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    chip.goal ? onGoalSelect(chip.goal) : onCitySelect(chip.city!);
-                                }}
-                                className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/80 text-[10px] font-black hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95 backdrop-blur-md cursor-pointer pointer-events-auto"
-                            >
-                                {chip.label}
-                            </button>
-                        ))}
-                     </motion.div>
-
-                    {/* Industrial Search Bar */}
-                    <div className="max-w-4xl mx-auto w-full relative z-40 px-4">
-                        <div className="flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-1.5 focus-within:ring-4 focus-within:ring-primary/20 transition-all">
-                            <div className="flex-1 flex items-center px-4 md:px-6 py-3">
-                                <Search className="text-slate-400 mr-3 md:mr-4 shrink-0" size={20} />
+                    {/* Search Bar - Collegedunia Style */}
+                    <div className="max-w-3xl mx-auto w-full relative z-40 px-4 mt-8">
+                        <div className="flex flex-col sm:flex-row bg-white rounded-md overflow-hidden shadow-2xl">
+                            <div className="flex items-center bg-slate-100 px-4 py-3 md:py-4 border-r border-slate-200 hidden sm:flex">
+                                <span className="text-slate-600 font-bold text-sm whitespace-nowrap">All Courses</span>
+                            </div>
+                            <div className="flex-1 flex items-center px-4 py-2">
+                                <Search className="text-slate-400 mr-3 shrink-0" size={20} />
                                 <input 
                                     type="text" 
-                                    placeholder="Search for colleges, exams.." 
+                                    placeholder="Search for colleges, exams, courses and more..." 
                                     value={searchQuery}
                                     onChange={(e) => handleSearchInput(e.target.value)}
                                     onKeyDown={(e) => {
@@ -160,15 +128,29 @@ export default function Hero({
                                             handleSuggestionClick(suggestions[0].slug)
                                         }
                                     }}
-                                    className="w-full outline-none text-base md:text-lg text-secondary placeholder:text-slate-400 font-medium"
+                                    className="w-full outline-none text-base text-slate-800 placeholder:text-slate-400 font-medium"
                                 />
                             </div>
                             <button 
                                 onClick={() => suggestions.length > 0 && handleSuggestionClick(suggestions[0].slug)}
-                                className="bg-primary hover:bg-primary/90 text-white font-black text-base md:text-lg px-8 md:px-12 py-4 md:py-5 rounded-xl sm:rounded-r-xl transition-all uppercase tracking-wider shadow-lg shadow-primary/30 active:scale-95"
+                                className="bg-primary hover:bg-primary/90 text-white font-bold text-base px-8 py-3 sm:py-0 transition-colors uppercase tracking-wide"
                             >
                                 Search
                             </button>
+                        </div>
+
+                        {/* Top Searches / Chips */}
+                        <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-white">
+                            <span className="text-sm font-medium mr-2">Top Searches:</span>
+                            {['B.Tech', 'MBA', 'B.Sc', 'M.Tech', 'B.Com'].map((chip) => (
+                                <button
+                                    key={chip}
+                                    onClick={() => onGoalSelect(chip === 'B.Tech' || chip === 'M.Tech' ? 'Engineering' : chip === 'MBA' ? 'Management' : 'Commerce')}
+                                    className="text-xs border border-white/40 bg-black/20 hover:bg-white/20 px-3 py-1 rounded transition-colors"
+                                >
+                                    {chip}
+                                </button>
+                            ))}
                         </div>
 
                         {/* Suggestions Dropdown */}
@@ -178,7 +160,7 @@ export default function Hero({
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
-                                    className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 p-2"
+                                    className="absolute top-[50px] sm:top-[60px] left-0 w-full mt-2 bg-white rounded-md shadow-2xl border border-slate-100 overflow-hidden z-50 p-2 text-left"
                                 >
                                     {suggestions.map((item) => (
                                         <div 
@@ -268,71 +250,57 @@ export default function Hero({
             </AnimatePresence>
 
             {/* Study Goal Navigator */}
-            <section className="bg-white py-24 relative z-20 rounded-t-[3rem] shadow-2xl">
+            <section className="bg-slate-50 py-16 relative z-20">
                 <div className="container mx-auto px-4">
-                    <div className="flex justify-between items-end mb-12">
-                        <div>
-                            <h2 className="text-4xl font-black text-secondary">Select Your <span className="text-primary italic">Study Goal</span></h2>
-                            <p className="text-muted-foreground mt-2 font-medium">Streamlined discovery for the most competitive degrees.</p>
-                        </div>
-                        <button className="text-primary font-bold flex items-center gap-2 hover:translate-x-1 transition-transform">
-                            View All Goals <ChevronRight size={20} />
+                    <div className="flex justify-between items-center mb-8">
+                        <h2 className="text-2xl font-bold text-slate-800">Explore Top Colleges by <span className="text-primary">Stream</span></h2>
+                        <button className="text-secondary font-bold text-sm hover:text-primary transition-colors">
+                            View All Streams &rarr;
                         </button>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {StudyGoals.map((goal, i) => (
                             <motion.div 
                                 key={goal.name}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
                                 onClick={() => onGoalSelect(goal.name)}
-                                className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:bg-white hover:-translate-y-2 transition-all cursor-pointer group flex flex-col justify-between min-h-[260px]"
+                                className="bg-white p-5 rounded-md border border-slate-200 hover:shadow-md hover:border-primary/50 transition-all cursor-pointer group flex items-center gap-4"
                             >
-                                <div className="space-y-6">
-                                    <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:shadow-lg group-hover:shadow-primary/10 transition-all border border-slate-100">
-                                        <goal.icon size={32} />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-black text-secondary">{goal.name}</h3>
-                                        <p className="text-slate-400 text-sm font-bold uppercase tracking-tighter mt-1">{goal.count}</p>
-                                    </div>
+                                <div className="w-12 h-12 rounded bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+                                    <goal.icon size={24} />
                                 </div>
-                                
-                                <div className="mt-8 pt-6 border-t border-slate-200/50 flex items-center justify-between text-slate-500 font-black">
-                                    <span className="text-xs tracking-wider">{goal.sub}</span>
-                                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
-                                        <ChevronRight size={18} />
-                                    </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-primary transition-colors">{goal.name}</h3>
+                                    <p className="text-slate-500 text-xs mt-1">{goal.count}</p>
                                 </div>
                             </motion.div>
                         ))}
                     </div>
 
-                    <div className="mt-24">
-                        <div className="flex justify-between items-end mb-12">
-                            <div>
-                                <h2 className="text-4xl font-black text-secondary uppercase tracking-tighter italic">Top <span className="text-emerald-500">Education Hubs</span></h2>
-                                <p className="text-muted-foreground mt-2 font-medium">Explore institutions in India's most vibrant academic cities.</p>
-                            </div>
+                    <div className="mt-16">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-2xl font-bold text-slate-800">Top Education <span className="text-primary">Hubs</span></h2>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {PopularCities.map((city, i) => (
                                 <motion.div 
                                     key={city.name}
-                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    initial={{ opacity: 0, scale: 0.95 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: i * 0.1 }}
                                     onClick={() => onCitySelect(city.name)}
-                                    className="p-6 bg-slate-900 rounded-[2rem] text-white hover:bg-emerald-600 transition-all cursor-pointer group relative overflow-hidden"
+                                    className="bg-white p-5 rounded-md border border-slate-200 hover:shadow-md hover:border-primary/50 transition-all cursor-pointer flex items-center gap-4 group"
                                 >
-                                    <div className="relative z-10">
-                                        <h4 className="text-xl font-black italic">{city.name}</h4>
-                                        <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest mt-1">{city.sub}</p>
-                                        <div className="mt-4 text-emerald-400 group-hover:text-white font-black text-sm transition-colors">{city.count}</div>
+                                    <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+                                        <MapPin size={24} />
                                     </div>
-                                    <MapPin size={64} className="absolute -bottom-4 -right-4 text-white/5 group-hover:text-white/10 transition-colors" />
+                                    <div>
+                                        <h4 className="text-lg font-bold text-slate-800">{city.name}</h4>
+                                        <p className="text-slate-500 text-xs mt-1">{city.count}</p>
+                                    </div>
                                 </motion.div>
                             ))}
                         </div>

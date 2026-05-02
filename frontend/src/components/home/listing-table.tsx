@@ -69,26 +69,23 @@ export default function ListingTable({
             (search.trim() || externalSearch.trim()) ? "py-12" : "py-24"
         )}>
             <div className="container mx-auto px-4 relative z-10">
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
                     <div className="max-w-2xl">
-                        <div className="flex items-center gap-2 mb-4 text-primary font-black uppercase tracking-widest text-xs">
-                            <TrendingUp size={14} /> Real-time Updates
-                        </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-secondary tracking-tighter leading-none mb-6">
-                            Verified <span className="italic text-primary">Partner</span> Institutions
+                        <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">
+                            List of Top Colleges In India based on 2024 Ranking
                         </h2>
                         
                         {/* Categories */}
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2 -mb-2">
                             {categories.map((cat) => (
                                 <button
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
                                     className={cn(
-                                        "px-6 py-2 rounded-full text-sm font-black transition-all border-2",
+                                        "px-4 py-1.5 rounded-md text-sm font-semibold transition-all border whitespace-nowrap",
                                         activeCategory === cat 
-                                            ? "bg-secondary border-secondary text-white shadow-lg" 
-                                            : "bg-white border-slate-200 text-slate-500 hover:border-primary hover:text-primary shadow-sm"
+                                            ? "bg-primary border-primary text-white" 
+                                            : "bg-white border-slate-300 text-slate-600 hover:border-primary hover:text-primary"
                                     )}
                                 >
                                     {cat}
@@ -97,19 +94,19 @@ export default function ListingTable({
                         </div>
                     </div>
 
-                    <div className="relative w-full lg:w-96">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <div className="relative w-full lg:w-80">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input 
                             type="text" 
                             placeholder="Search in this list..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary transition-all shadow-sm font-medium"
+                            className="w-full bg-white border border-slate-300 rounded-md py-2 pl-10 pr-4 outline-none focus:border-primary transition-all text-sm"
                         />
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative min-h-[400px]">
+                <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden relative min-h-[400px]">
                     {loading && (
                         <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-4">
                             <Loader2 className="animate-spin text-primary" size={40} />
@@ -122,30 +119,29 @@ export default function ListingTable({
                         {filteredColleges.map((college) => (
                             <div 
                                 key={college.id} 
-                                className="p-6 bg-white hover:bg-slate-50 transition-colors"
+                                className="p-4 bg-white hover:bg-slate-50 transition-colors"
                                 onClick={() => router.push(`/colleges/${college.slug}`)}
                             >
-                                <div className="flex gap-4 mb-4">
-                                    <div className="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center font-black text-white text-xs shadow-lg shrink-0">
+                                <div className="flex gap-3 mb-3">
+                                    <div className="w-12 h-12 rounded border border-slate-200 flex items-center justify-center font-bold text-slate-400 text-xs shrink-0">
                                         {college.logo || college.name.charAt(0)}
                                     </div>
                                     <div className="flex-1">
-                                        <div className="text-primary font-black text-[10px] uppercase tracking-widest mb-1">NIRF Rank #{college.rank || 'N/A'}</div>
-                                        <h3 className="font-black text-secondary leading-tight line-clamp-2">{college.name}</h3>
-                                        <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold mt-1">
+                                        <h3 className="font-bold text-secondary text-sm leading-tight line-clamp-2 hover:text-primary">{college.name}</h3>
+                                        <div className="flex items-center gap-1.5 text-slate-500 text-xs mt-1">
                                             <MapPin size={12} className="text-primary" /> {college.location}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3 mb-4">
-                                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Total Fees</div>
-                                        <div className="font-black text-secondary">₹{college.fees}</div>
+                                <div className="grid grid-cols-2 gap-2 mb-3">
+                                    <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                                        <div className="text-[10px] text-slate-500">Fees</div>
+                                        <div className="font-bold text-secondary text-xs">₹{college.fees}</div>
                                     </div>
-                                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Avg Placement</div>
-                                        <div className="font-black text-emerald-500">{college.avg_package ? `₹${college.avg_package}L` : 'N/A'}</div>
+                                    <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                                        <div className="text-[10px] text-slate-500">Placement</div>
+                                        <div className="font-bold text-emerald-600 text-xs">{college.avg_package ? `₹${college.avg_package}L` : 'N/A'}</div>
                                     </div>
                                 </div>
 
@@ -155,18 +151,18 @@ export default function ListingTable({
                                             e.stopPropagation();
                                             setApplyModal({ isOpen: true, college })
                                         }}
-                                        className="flex-1 bg-primary text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                                        className="flex-1 bg-primary text-white py-2 rounded text-xs font-bold hover:bg-primary/90 transition-colors"
                                     >
-                                        <Zap size={14} className="fill-white" /> Easy Apply
+                                        Apply Now
                                     </button>
                                     <button 
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             router.push(`/colleges/${college.slug}`)
                                         }}
-                                        className="px-4 bg-slate-100 text-secondary py-3 rounded-xl text-xs font-black flex items-center justify-center"
+                                        className="px-4 border border-primary text-primary hover:bg-primary/5 py-2 rounded text-xs font-bold"
                                     >
-                                        Details
+                                        Course & Fees
                                     </button>
                                 </div>
                             </div>
@@ -175,95 +171,98 @@ export default function ListingTable({
 
                     {/* Desktop Table View (Hidden on small screens) */}
                     <div className="hidden md:block overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50/50 border-b border-slate-100">
-                                <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                    <th className="px-8 py-6">Rank</th>
-                                    <th className="px-4 py-6">College</th>
-                                    <th className="px-4 py-6">Agency & Cutoff</th>
-                                    <th className="px-4 py-6">App Deadline</th>
-                                    <th className="px-4 py-6">Total Fees</th>
-                                    <th className="px-4 py-6 text-right">Action</th>
+                        <table className="w-full text-left border-collapse">
+                            <thead className="bg-slate-100 border-b border-slate-200 text-slate-600">
+                                <tr className="text-xs font-bold uppercase tracking-wider">
+                                    <th className="px-6 py-4 border-r border-slate-200 text-center w-16">Rank</th>
+                                    <th className="px-6 py-4 border-r border-slate-200">College</th>
+                                    <th className="px-6 py-4 border-r border-slate-200">Reviews & Rating</th>
+                                    <th className="px-6 py-4 border-r border-slate-200">Important Dates</th>
+                                    <th className="px-6 py-4 border-r border-slate-200">Fees & Placement</th>
+                                    <th className="px-6 py-4 text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-50">
+                            <tbody className="divide-y divide-slate-200">
                                 {filteredColleges.map((college) => (
                                     <motion.tr 
                                         layout
                                         key={college.id}
-                                        className="group hover:bg-slate-50/50 transition-colors cursor-pointer"
-                                        onClick={() => router.push(`/colleges/${college.slug}`)}
+                                        className="hover:bg-slate-50 transition-colors"
                                     >
-                                        <td className="px-8 py-8">
-                                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-black text-secondary group-hover:bg-primary group-hover:text-white transition-all">
-                                                {college.rank}
-                                            </div>
+                                        <td className="px-6 py-6 border-r border-slate-200 text-center align-top">
+                                            <div className="font-bold text-slate-800 text-lg">#{college.rank}</div>
+                                            <div className="text-[10px] text-slate-500 mt-1">NIRF</div>
                                         </td>
-                                        <td className="px-4 py-8">
-                                            <div className="flex items-center gap-5">
-                                                <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center font-black text-white text-xs shadow-xl">
+                                        <td className="px-6 py-6 border-r border-slate-200 align-top">
+                                            <div className="flex gap-4">
+                                                <div className="w-12 h-12 rounded border border-slate-200 bg-white flex items-center justify-center font-bold text-slate-400 shrink-0">
                                                     {college.logo || college.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-secondary text-lg leading-tight mb-1 group-hover:text-primary transition-colors">
+                                                    <div 
+                                                        className="font-bold text-secondary text-base hover:text-primary cursor-pointer transition-colors"
+                                                        onClick={() => router.push(`/colleges/${college.slug}`)}
+                                                    >
                                                         {college.name}
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-slate-400 text-sm font-bold">
+                                                    <div className="flex items-center gap-1.5 text-slate-500 text-xs mt-1">
                                                         <MapPin size={12} className="text-primary" />
-                                                        {college.location}
+                                                        {college.location} | {college.agency || 'AICTE'} Approved
+                                                    </div>
+                                                    <div className="mt-3 flex gap-3 text-xs">
+                                                        <span className="text-primary hover:underline cursor-pointer">Admission</span>
+                                                        <span className="text-primary hover:underline cursor-pointer">Courses & Fees</span>
+                                                        <span className="text-primary hover:underline cursor-pointer">Placement</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-8">
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-1.5">
-                                                    <ShieldCheck size={14} className="text-emerald-500" />
-                                                    <span className="text-xs font-black text-emerald-600">{college.agency || 'NAAC'} Verified</span>
+                                        <td className="px-6 py-6 border-r border-slate-200 align-top">
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-sm font-bold text-amber-500">★ 4.2 / 5</span>
                                                 </div>
-                                                <div className="text-sm font-black text-secondary">{college.cutoff || '85'}% Percentile</div>
+                                                <span className="text-xs text-slate-500 mt-1">Based on 120 Reviews</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-8">
+                                        <td className="px-6 py-6 border-r border-slate-200 align-top">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-secondary">{college.deadline || 'Closing Soon'}</span>
-                                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-tighter">Hurry, Ends Soon!</span>
+                                                <span className="text-sm font-bold text-slate-800">{college.deadline || 'Closing Soon'}</span>
+                                                <span className="text-xs text-slate-500 mt-1">Application Deadline</span>
+                                                <span className="text-xs text-emerald-600 font-bold mt-2 hover:underline cursor-pointer">Apply Now &rarr;</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-8">
-                                            <div className="flex flex-col">
-                                                <span className="text-lg font-black text-secondary">₹{college.fees}</span>
-                                                <div className="flex flex-col gap-1 mt-1">
-                                                    <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-tighter flex items-center gap-1">
-                                                        <TrendingUp size={10} /> Avg Placement {college.avg_package ? `₹${college.avg_package}L` : 'N/A'}
-                                                    </span>
-                                                    {college.hostels?.length > 0 && (
-                                                        <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter flex items-center gap-1">
-                                                            <Building2 size={10} /> Hostel Available (₹{college.hostels[0].fee})
-                                                        </span>
-                                                    )}
+                                        <td className="px-6 py-6 border-r border-slate-200 align-top">
+                                            <div className="flex flex-col gap-3">
+                                                <div>
+                                                    <div className="text-sm font-bold text-emerald-600">₹{college.fees}</div>
+                                                    <div className="text-xs text-slate-500">Total Fees</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-slate-800">{college.avg_package ? `₹${college.avg_package}L` : 'N/A'}</div>
+                                                    <div className="text-xs text-slate-500">Average Placement</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-8 text-right">
-                                            <div className="flex flex-col gap-2 ml-auto w-fit">
+                                        <td className="px-6 py-6 text-center align-top">
+                                            <div className="flex flex-col gap-2">
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setApplyModal({ isOpen: true, college })
                                                     }}
-                                                    className="bg-primary text-white hover:bg-primary/90 px-6 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                                                    className="w-full bg-primary text-white hover:bg-primary/90 px-4 py-2 rounded text-xs font-bold transition-colors"
                                                 >
-                                                    <Zap size={14} className="fill-white" /> Easy Apply
+                                                    Apply Now
                                                 </button>
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         router.push(`/colleges/${college.slug}`)
                                                     }}
-                                                    className="bg-slate-100 text-secondary hover:bg-slate-200 px-6 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2"
+                                                    className="w-full border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded text-xs font-bold transition-colors"
                                                 >
-                                                    View Details <ArrowRight size={14} />
+                                                    Download Brochure
                                                 </button>
                                             </div>
                                         </td>
@@ -271,10 +270,10 @@ export default function ListingTable({
                                 ))}
                                 {filteredColleges.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={6} className="px-8 py-24 text-center">
+                                        <td colSpan={6} className="px-8 py-16 text-center">
                                             <div className="flex flex-col items-center gap-4">
-                                                <Search size={48} className="text-slate-200" />
-                                                <p className="text-slate-400 font-bold italic text-xl">No institutions matching "{search}" found.</p>
+                                                <Search size={40} className="text-slate-300" />
+                                                <p className="text-slate-500 font-bold text-lg">No institutions found matching "{search}"</p>
                                             </div>
                                         </td>
                                     </tr>

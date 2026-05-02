@@ -6,7 +6,7 @@ import { API_URL } from '@/lib/api'
 async function getCollege(slug: string) {
     try {
         const res = await fetch(`${API_URL}/colleges/${slug}`, {
-            next: { revalidate: 3600 } // Cache for 1 hour
+            next: { revalidate: 60 } // Cache for 1 min
         })
         if (!res.ok) return null
         return res.json()
