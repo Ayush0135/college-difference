@@ -72,19 +72,45 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CollegeDetailPage({ params }: { params: { slug: string } }) {
-    const college = await getCollege(params.slug)
+    const rawSlug = params.slug
+    const isValid = isValidSlug(rawSlug)
+    const college = await getCollege(rawSlug)
 
     if (!college) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-slate-50 p-4 text-center">
                 <div className="text-6xl">🎓</div>
                 <h1 className="text-3xl font-black text-slate-800">College Not Found</h1>
-                <p className="text-slate-500 max-w-md">
-                    We couldn&apos;t find a college matching <code className="bg-slate-100 px-2 py-1 rounded text-sm font-bold text-red-600">{params.slug || 'an empty link'}</code>. 
-                    It may have been removed or the link may be incorrect.
-                </p>
+                
+                <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 max-w-lg w-full text-left space-y-4">
+                    <p className="text-slate-600 font-medium">
+                        We couldn&apos;t find a college matching this link.
+                    </p>
+                    
+                    <div className="bg-slate-50 p-4 rounded-xl space-y-2 font-mono text-xs border border-slate-100">
+                        <div className="flex justify-between">
+                            <span className="text-slate-400">Requested Slug:</span>
+                            <span className="font-bold text-red-600">&quot;{rawSlug || 'EMPTY'}&quot;</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-slate-400">Slug Length:</span>
+                            <span className="font-bold text-slate-800">{rawSlug?.length || 0} characters</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-slate-400">Validation:</span>
+                            <span className={isValid ? "text-emerald-600 font-bold" : "text-red-600 font-bold"}>
+                                {isValid ? "Passed" : "Blocked by Security"}
+                            </span>
+                        </div>
+                    </div>
+
+                    <p className="text-sm text-slate-400 italic">
+                        Tip: If the requested slug looks like &quot;undefined&quot; or is empty, please clear your browser cache or hard-refresh the home page.
+                    </p>
+                </div>
+
                 <Link href="/" className="bg-primary text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all">
-                    Browse All Colleges
+                    Back to All Colleges
                 </Link>
             </div>
         )
@@ -92,3 +118,4 @@ export default async function CollegeDetailPage({ params }: { params: { slug: st
 
     return <CollegeDetailView college={college} />
 }
+
