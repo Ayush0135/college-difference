@@ -331,7 +331,7 @@ app.patch('/admin/colleges/:id', async (c) => {
     const supabase = getSupabase(c)
     const { courses, hostels, reviews, id: _droppedId, ...collegeData } = body
 
-    const { error: collegeError } = await supabase.from('colleges').update(collegeData).eq('id', id)
+    const { data: updatedCollege, error: collegeError } = await supabase.from('colleges').update(collegeData).eq('id', id).select('slug').single()
     if (collegeError) return c.json({ detail: collegeError.message }, 500)
     
     // Replace related data (Delete old, insert new)
@@ -348,7 +348,8 @@ app.patch('/admin/colleges/:id', async (c) => {
       if (reviews.length > 0) await supabase.from('reviews').insert(reviews.map((r: any) => ({ ...r, college_id: id, is_verified: true })))
     }
 
-    return c.json({ success: true })
+    // Return the slug so the frontend can navigate to the correct page
+    return c.json({ success: true, slug: updatedCollege?.slug })
   } catch (err: any) {
     return c.json({ detail: err.message }, 500)
   }
