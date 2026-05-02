@@ -219,9 +219,9 @@ export default function ListingTable({
                                                         {college.location} | {college.agency || 'AICTE'} Approved
                                                     </div>
                                                     <div className="mt-3 flex gap-3 text-xs">
-                                                        <span className="text-primary hover:underline cursor-pointer">Admission</span>
-                                                        <span className="text-primary hover:underline cursor-pointer">Courses & Fees</span>
-                                                        <span className="text-primary hover:underline cursor-pointer">Placement</span>
+                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college.slug); }} className="text-primary hover:underline cursor-pointer">Admission</span>
+                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college.slug); }} className="text-primary hover:underline cursor-pointer">Courses & Fees</span>
+                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college.slug); }} className="text-primary hover:underline cursor-pointer">Placement</span>
                                                     </div>
                                                 </div>
                                             </div>
