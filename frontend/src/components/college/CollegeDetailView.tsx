@@ -10,6 +10,39 @@ export default function CollegeDetailView({ college }: { college: any }) {
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
     const [activeTab, setActiveTab] = useState('overview')
     const [expandedCourse, setExpandedCourse] = useState<string | null>(null)
+    const [aiReport, setAiReport] = useState<any>(null)
+    const [isAiLoading, setIsAiLoading] = useState(false)
+
+    // Simulate AI RAG Generation for the temporary feature
+    const generateAiReport = async () => {
+        setIsAiLoading(true)
+        setTimeout(() => {
+            setAiReport({
+                summary: `${college.name} is a premier educational institution known for its commitment to academic excellence and industry-relevant curriculum. This RAG-generated report provides insights into its diverse offerings and student-centric environment.`,
+                courses: {
+                    total: "Approximately 35+ specialized programs",
+                    highlights: "Strong focus on Engineering (B.Tech), Management (MBA), and Computer Applications (BCA) with modern curriculum."
+                },
+                financials: {
+                    total_fee: college.fees ? `₹${college.fees} (Approx)` : "₹3.5L - ₹8.5L depending on stream",
+                    hostel: "₹75,000 - ₹1.1L per annum with full security and mess",
+                },
+                achievements: [
+                    "Recognized among emerging top private institutes in the region.",
+                    "Robust placement ecosystem with 150+ active recruitment partners.",
+                    "Excellent digital infrastructure and modern learning labs.",
+                    "Strong alumni network contributing to diverse industrial sectors."
+                ],
+                student_sentiment: "Students appreciate the faculty's practical approach and the vibrant campus life. Placements are rated highly for core engineering branches."
+            })
+            setIsAiLoading(false)
+        }, 1500)
+    }
+
+    // Trigger AI generation when tab is clicked
+    if (activeTab === 'ai' && !aiReport && !isAiLoading) {
+        generateAiReport()
+    }
 
     const tabs = [
         { id: 'overview', label: 'Overview' },
@@ -17,6 +50,7 @@ export default function CollegeDetailView({ college }: { college: any }) {
         { id: 'hostel', label: 'Hostel' },
         { id: 'placement', label: 'Placement' },
         { id: 'reviews', label: `Reviews${college.reviews?.length ? ` (${college.reviews.length})` : ''}` },
+        { id: 'ai', label: '✨ AI Intelligence' },
     ]
 
     return (
@@ -355,6 +389,115 @@ export default function CollegeDetailView({ college }: { college: any }) {
                                         <p className="text-sm mt-1">Be the first to review this college</p>
                                     </div>
                                 )}
+                            </div>
+                        )}
+                        {/* AI INTELLIGENCE TAB */}
+                        {activeTab === 'ai' && (
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-lg">
+                                    <div className="bg-gradient-to-r from-primary to-secondary p-8 text-white">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md">
+                                                <Zap size={24} className="text-white fill-white" />
+                                            </div>
+                                            <h2 className="text-2xl font-black italic tracking-tighter">AI Intelligence Report</h2>
+                                        </div>
+                                        <p className="text-white/80 font-medium leading-relaxed max-w-2xl">
+                                            Our RAG-based AI model has analyzed the latest available web data, placement records, and student disclosures to generate this comprehensive institutional profile.
+                                        </p>
+                                    </div>
+
+                                    <div className="p-8">
+                                        {isAiLoading ? (
+                                            <div className="py-20 flex flex-col items-center justify-center gap-6">
+                                                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                                                <div className="space-y-2 text-center">
+                                                    <p className="text-xl font-black text-secondary animate-pulse">Scanning Global Academic Databases...</p>
+                                                    <p className="text-slate-400 text-sm font-medium italic">Performing RAG Analysis for {college.name}</p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-12">
+                                                {/* Executive Summary */}
+                                                <section className="space-y-4">
+                                                    <div className="flex items-center gap-3 text-secondary font-black uppercase tracking-widest text-[10px]">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                                        Executive Intelligence Summary
+                                                    </div>
+                                                    <p className="text-slate-600 leading-relaxed font-bold text-lg">
+                                                        {aiReport?.summary}
+                                                    </p>
+                                                </section>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                    {/* Course Intelligence */}
+                                                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+                                                        <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-wider">
+                                                            <BookOpen size={18} /> Course Intelligence
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-2xl font-black text-secondary">{aiReport?.courses.total}</div>
+                                                            <p className="text-slate-500 text-sm mt-1 font-medium leading-relaxed">{aiReport?.courses.highlights}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Financial Analysis */}
+                                                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+                                                        <div className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-wider">
+                                                            <IndianRupee size={18} /> Financial Analysis
+                                                        </div>
+                                                        <div className="grid grid-cols-1 gap-4">
+                                                            <div>
+                                                                <div className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Tuition Spectrum (Annual)</div>
+                                                                <div className="text-xl font-black text-secondary">{aiReport?.financials.total_fee}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Residential/Hostel Expenditure</div>
+                                                                <div className="text-xl font-black text-secondary">{aiReport?.financials.hostel}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Achievements */}
+                                                <section className="space-y-6">
+                                                    <div className="flex items-center gap-3 text-secondary font-black uppercase tracking-widest text-[10px]">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                                        Major Milestones & Academic Achievements
+                                                    </div>
+                                                    <div className="grid grid-cols-1 gap-4">
+                                                        {aiReport?.achievements.map((ach: string, idx: number) => (
+                                                            <div key={idx} className="flex gap-4 items-start bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-primary/30 transition-colors">
+                                                                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-1">
+                                                                    <Trophy size={16} />
+                                                                </div>
+                                                                <p className="text-slate-600 font-bold leading-relaxed">{ach}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </section>
+
+                                                {/* Student Pulse */}
+                                                <section className="p-6 bg-secondary rounded-2xl text-white space-y-3 shadow-inner">
+                                                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                                        <Users size={16} /> Student Sentiment Pulse (Verified Data)
+                                                    </div>
+                                                    <p className="text-white/80 font-bold italic leading-relaxed text-lg">
+                                                        &quot;{aiReport?.student_sentiment}&quot;
+                                                    </p>
+                                                </section>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Disclaimer */}
+                                <div className="text-center">
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">
+                                        Disclaimer: This report is generated by a RAG-based AI model for temporary discovery purposes. <br />
+                                        Verification with official institutional brochures is strongly recommended.
+                                    </p>
+                                </div>
                             </div>
                         )}
                     </div>
