@@ -48,6 +48,7 @@ export default function Hero({
 }) {
     const [currentSlide, setCurrentSlide] = useState(0)
     const [searchQuery, setSearchQuery] = useState('')
+    const [isSearching, setIsSearching] = useState(false)
     const [suggestions, setSuggestions] = useState<any[]>([])
     const router = useRouter()
 
@@ -58,14 +59,26 @@ export default function Hero({
         return () => clearInterval(timer)
     }, [])
 
+    // Real-time Debounced Search
     useEffect(() => {
-        if (searchQuery.length > 2) {
-            fetch(`${API_URL}/colleges?search=${searchQuery}`)
-                .then(res => res.json())
-                .then(data => setSuggestions(data.slice(0, 5)))
-                .catch(err => console.error('Search error:', err))
+        if (searchQuery.length > 1) {
+            setIsSearching(true)
+            const timeoutId = setTimeout(() => {
+                fetch(`${API_URL}/colleges?search=${encodeURIComponent(searchQuery)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setSuggestions(data.slice(0, 6))
+                        setIsSearching(false)
+                    })
+                    .catch(err => {
+                        console.error('Search error:', err)
+                        setIsSearching(false)
+                    })
+            }, 300) // 300ms debounce
+            return () => clearTimeout(timeoutId)
         } else {
             setSuggestions([])
+            setIsSearching(false)
         }
     }, [searchQuery])
 
@@ -122,7 +135,11 @@ export default function Hero({
                                 <span className="text-slate-600 font-bold text-sm whitespace-nowrap">All Courses</span>
                             </div>
                             <div className="flex-1 flex items-center px-4 py-2">
-                                <Search className="text-slate-400 mr-3 shrink-0" size={20} />
+                                {isSearching ? (
+                                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mr-3 shrink-0" />
+                                ) : (
+                                    <Search className="text-slate-400 mr-3 shrink-0" size={20} />
+                                )}
                                 <input 
                                     type="text" 
                                     placeholder="Search for colleges, exams, courses and more..." 
