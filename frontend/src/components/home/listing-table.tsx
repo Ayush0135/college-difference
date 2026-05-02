@@ -35,7 +35,7 @@ export default function ListingTable({
     useEffect(() => {
         setLoading(true)
         const cityParam = urlCity ? `&city=${urlCity}` : ''
-        fetch(`${API_URL}/colleges?goal=${activeCategory}&search=${search}${cityParam}`)
+        fetch(`${API_URL}/colleges?goal=${activeCategory}&search=${search}${cityParam}`, { cache: 'no-store' })
             .then(res => res.json())
             .then(data => {
                 setColleges(data)

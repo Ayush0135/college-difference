@@ -3,10 +3,12 @@ import CollegeDetailView from '@/components/college/CollegeDetailView'
 import Link from 'next/link'
 import { API_URL } from '@/lib/api'
 
+export const dynamic = 'force-dynamic'
+
 async function getCollege(slug: string) {
     try {
         const res = await fetch(`${API_URL}/colleges/${slug}`, {
-            next: { revalidate: 60 } // Cache for 1 min
+            cache: 'no-store'
         })
         if (!res.ok) return null
         return res.json()
