@@ -5,10 +5,7 @@ import { GraduationCap, MapPin, Phone, Mail, Globe, MessageSquare, Share2, Arrow
 
 export default function Footer() {
     return (
-        <footer className="bg-secondary text-white pt-24 pb-12 overflow-hidden relative">
-            {/* Decorative Element */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-            
+        <footer className="bg-slate-900 text-white pt-16 pb-8 overflow-hidden relative">
             <div className="container mx-auto px-4 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
                     {/* Brand Section */}
