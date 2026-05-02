@@ -164,12 +164,18 @@ app.get('/colleges/:slug', async (c) => {
   const slug = c.req.param('slug')
   const supabase = getSupabase(c)
 
-  // 1. Get College
-  const { data: college, error: collegeError } = await supabase
-    .from('colleges')
-    .select('*')
-    .eq('slug', slug)
-    .single()
+  // 1. Get College (Try slug first, then ID if it looks like a UUID)
+  let query = supabase.from('colleges').select('*')
+  
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug)
+  
+  if (isUUID) {
+    query = query.or(`slug.eq.${slug},id.eq.${slug}`)
+  } else {
+    query = query.eq('slug', slug)
+  }
+
+  const { data: college, error: collegeError } = await query.single()
 
   if (collegeError || !college) return c.json({ error: 'College not found' }, 404)
 
