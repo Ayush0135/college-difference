@@ -217,7 +217,7 @@ export default function AdminDashboard() {
                             { id: 'create', label: 'Add College' },
                             { id: 'bulk', label: 'Import' },
                             { id: 'team', label: 'Team' }
-                        ].filter(tab => tab.id !== 'team' || user?.email === 'ayush.kashyap7155@gmail.com').map(tab => (
+                        ].map(tab => (
                             <button 
                                 key={tab.id}
                                 onClick={() => { setView(tab.id as any); setEditingCollege(null); }}
