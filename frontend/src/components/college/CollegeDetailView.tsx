@@ -5,6 +5,7 @@ import { MapPin, ShieldCheck, Trophy, Star, CheckCircle2, Zap, ArrowLeft, BookOp
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import ApplyModal from '@/components/college/ApplyModal'
+import { API_URL } from '@/lib/api'
 
 export default function CollegeDetailView({ college }: { college: any }) {
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
@@ -13,30 +14,35 @@ export default function CollegeDetailView({ college }: { college: any }) {
     const [aiReport, setAiReport] = useState<any>(null)
     const [isAiLoading, setIsAiLoading] = useState(false)
 
-    // Simulate AI RAG Generation for the temporary feature
+    // Real AI RAG Generation via Groq
     const generateAiReport = async () => {
         setIsAiLoading(true)
-        setTimeout(() => {
+        try {
+            const target = (college.slug || college.id || '').toString().trim()
+            if (!target) throw new Error('No college identifier found')
+
+            const response = await fetch(`${API_URL}/colleges/${target}/ai-report`)
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}))
+                throw new Error(errData.error || 'AI Engine is currently overloaded. Please try again in a few seconds.')
+            }
+
+            const data = await response.json()
+            setAiReport(data)
+        } catch (err: any) {
+            console.error('AI Intelligence Error:', err)
+            // Fallback: if AI fails, show a slightly more generic but helpful message
             setAiReport({
-                summary: `${college.name} is a premier educational institution known for its commitment to academic excellence and industry-relevant curriculum. This RAG-generated report provides insights into its diverse offerings and student-centric environment.`,
-                courses: {
-                    total: "Approximately 35+ specialized programs",
-                    highlights: "Strong focus on Engineering (B.Tech), Management (MBA), and Computer Applications (BCA) with modern curriculum."
-                },
-                financials: {
-                    total_fee: college.fees ? `₹${college.fees} (Approx)` : "₹3.5L - ₹8.5L depending on stream",
-                    hostel: "₹75,000 - ₹1.1L per annum with full security and mess",
-                },
-                achievements: [
-                    "Recognized among emerging top private institutes in the region.",
-                    "Robust placement ecosystem with 150+ active recruitment partners.",
-                    "Excellent digital infrastructure and modern learning labs.",
-                    "Strong alumni network contributing to diverse industrial sectors."
-                ],
-                student_sentiment: "Students appreciate the faculty's practical approach and the vibrant campus life. Placements are rated highly for core engineering branches."
+                summary: `We are currently experiencing high demand for AI analysis for ${college.name}.`,
+                courses: { total: "Analyzing...", highlights: "Streaming latest data..." },
+                financials: { total_fee: "Contact Counselors", hostel: "Contact Counselors" },
+                achievements: ["Live data retrieval failed", "Please click 'Apply Now' for latest brochure"],
+                student_sentiment: "Real-time sentiment analysis paused."
             })
+            alert(err.message)
+        } finally {
             setIsAiLoading(false)
-        }, 1500)
+        }
     }
 
     // Trigger AI generation when tab is clicked

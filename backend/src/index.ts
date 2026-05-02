@@ -194,6 +194,82 @@ app.get('/colleges/:slug', async (c) => {
   })
 })
 
+// AI INTELLIGENCE REPORT (Groq)
+app.get('/colleges/:slug/ai-report', async (c) => {
+  const slugOrId = c.req.param('slug')
+  const groqKey = c.env.GROQ_API_KEY
+  const supabase = getSupabase(c)
+
+  if (!groqKey) {
+    return c.json({ error: 'AI intelligence engine not configured (Missing GROQ_API_KEY)' }, 503)
+  }
+
+  // 1. Get College Name
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId)
+  let query = supabase.from('colleges').select('name, location, stream')
+  if (isUUID) {
+    query = query.eq('id', slugOrId)
+  } else {
+    query = query.eq('slug', slugOrId)
+  }
+  
+  const { data: college, error: collegeError } = await query.single()
+  if (collegeError || !college) return c.json({ error: 'College not found' }, 404)
+
+  try {
+    const prompt = `You are an expert academic consultant for "Degree Difference", a premium Indian college discovery platform. 
+    Generate a high-fidelity institutional intelligence report for: "${college.name}" located in ${college.location}.
+    
+    The user wants to know:
+    1. Total number of courses (approximate if exact not known).
+    2. Total fee spectrum (min to max).
+    3. Hostel facilities and fees.
+    4. Student reviews sentiment.
+    5. Major and minor achievements/milestones.
+    
+    You MUST return the data in the following EXACT JSON format:
+    {
+      "summary": "A 2-3 sentence executive summary.",
+      "courses": {
+        "total": "e.g., 45+ Specialized Programs",
+        "highlights": "A brief overview of top streams."
+      },
+      "financials": {
+        "total_fee": "e.g., ₹4.5L - ₹12.5L",
+        "hostel": "e.g., ₹85k - ₹1.2L per year"
+      },
+      "achievements": ["Achievement 1", "Achievement 2", "Achievement 3", "Achievement 4"],
+      "student_sentiment": "A summary of student pulse."
+    }
+    
+    Base your answer on your extensive knowledge of Indian education. Be factual and professional.`
+
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${groqKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: "You are a professional academic data extractor. Always output strictly valid JSON." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.5,
+        response_format: { type: "json_object" }
+      })
+    })
+
+    const result: any = await groqResponse.json()
+    const report = JSON.parse(result.choices[0].message.content)
+    
+    return c.json(report)
+  } catch (err: any) {
+    return c.json({ error: 'Failed to generate AI report', details: err.message }, 500)
+  }
+})
+
 // BANNERS
 app.get('/banners', async (c) => {
   const supabase = getSupabase(c)
