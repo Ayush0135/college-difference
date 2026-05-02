@@ -170,7 +170,7 @@ app.get('/colleges/:slug', async (c) => {
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug)
   
   if (isUUID) {
-    query = query.or(`slug.eq.${slug},id.eq.${slug}`)
+    query = query.or(`slug.eq."${slug}",id.eq."${slug}"`)
   } else {
     query = query.eq('slug', slug)
   }
