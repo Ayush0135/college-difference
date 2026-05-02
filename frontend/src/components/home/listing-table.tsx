@@ -20,13 +20,14 @@ export default function ListingTable({
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    // Guard: never navigate to /colleges/undefined
-    const safeNavigate = (slug: string | undefined | null) => {
-        if (!slug || slug === 'undefined' || slug === 'null' || slug.startsWith('http')) {
+    // Guard: never navigate to /colleges/undefined. Fallback to ID if slug is missing.
+    const safeNavigate = (college: any) => {
+        const target = college.slug || college.id
+        if (!target || target === 'undefined' || target === 'null') {
             alert('This college page is not available yet. Please try another college.')
             return
         }
-        window.open(`/colleges/${slug}`, '_blank')
+        window.open(`/colleges/${target}`, '_blank')
     }
     
     // Sync with URL
@@ -129,7 +130,7 @@ export default function ListingTable({
                             <div 
                                 key={college.id} 
                                 className="p-4 bg-white hover:bg-slate-50 transition-colors"
-                                onClick={() => safeNavigate(college.slug)}
+                                onClick={() => safeNavigate(college)}
                             >
                                 <div className="flex gap-3 mb-3">
                                     <div className="w-12 h-12 rounded border border-slate-200 flex items-center justify-center font-bold text-slate-400 text-xs shrink-0">
@@ -210,7 +211,7 @@ export default function ListingTable({
                                                 <div>
                                                     <div 
                                                         className="font-bold text-secondary text-base hover:text-primary cursor-pointer transition-colors"
-                                                        onClick={() => safeNavigate(college.slug)}
+                                                        onClick={() => safeNavigate(college)}
                                                     >
                                                         {college.name}
                                                     </div>
@@ -219,9 +220,9 @@ export default function ListingTable({
                                                         {college.location} | {college.agency || 'AICTE'} Approved
                                                     </div>
                                                     <div className="mt-3 flex gap-3 text-xs">
-                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college.slug); }} className="text-primary hover:underline cursor-pointer">Admission</span>
-                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college.slug); }} className="text-primary hover:underline cursor-pointer">Courses & Fees</span>
-                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college.slug); }} className="text-primary hover:underline cursor-pointer">Placement</span>
+                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college); }} className="text-primary hover:underline cursor-pointer">Admission</span>
+                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college); }} className="text-primary hover:underline cursor-pointer">Courses & Fees</span>
+                                                        <span onClick={(e) => { e.stopPropagation(); safeNavigate(college); }} className="text-primary hover:underline cursor-pointer">Placement</span>
                                                     </div>
                                                 </div>
                                             </div>

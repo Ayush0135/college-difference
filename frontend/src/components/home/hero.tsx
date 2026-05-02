@@ -74,12 +74,13 @@ export default function Hero({
         onSearchChange(val)
     }
 
-    const handleSuggestionClick = (slug: string | undefined | null) => {
-        if (!slug || slug === 'undefined' || slug.startsWith('http')) {
+    const handleSuggestionClick = (item: any) => {
+        const target = item.slug || item.id
+        if (!target || target === 'undefined') {
             alert('This college page is not available yet.')
             return
         }
-        window.open(`/colleges/${slug}`, '_blank')
+        window.open(`/colleges/${target}`, '_blank')
     }
 
     return (
@@ -129,14 +130,14 @@ export default function Hero({
                                     onChange={(e) => handleSearchInput(e.target.value)}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' && suggestions.length > 0) {
-                                            handleSuggestionClick(suggestions[0].slug)
+                                            handleSuggestionClick(suggestions[0])
                                         }
                                     }}
                                     className="w-full outline-none text-base text-slate-800 placeholder:text-slate-400 font-medium"
                                 />
                             </div>
                             <button 
-                                onClick={() => suggestions.length > 0 && handleSuggestionClick(suggestions[0].slug)}
+                                onClick={() => suggestions.length > 0 && handleSuggestionClick(suggestions[0])}
                                 className="bg-primary hover:bg-primary/90 text-white font-bold text-base px-8 py-3 sm:py-0 transition-colors uppercase tracking-wide"
                             >
                                 Search
@@ -229,7 +230,7 @@ export default function Hero({
                                 {suggestions.map((item) => (
                                     <motion.div 
                                         key={item.id}
-                                        onClick={() => handleSuggestionClick(item.slug)}
+                                        onClick={() => handleSuggestionClick(item)}
                                         whileHover={{ y: -5 }}
                                         className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-5 cursor-pointer hover:shadow-xl transition-all group"
                                     >

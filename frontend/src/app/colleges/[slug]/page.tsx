@@ -62,11 +62,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CollegeDetailPage({ params }: { params: { slug: string } }) {
-    // Redirect invalid slugs back to home instead of showing 404
-    if (!isValidSlug(params.slug)) {
-        redirect('/')
-    }
-
     const college = await getCollege(params.slug)
 
     if (!college) {
