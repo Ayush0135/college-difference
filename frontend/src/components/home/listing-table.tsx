@@ -168,7 +168,7 @@ export default function ListingTable({
                                     <button 
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            router.push(`/colleges/${college.slug}`)
+                                            safeNavigate(college)
                                         }}
                                         className="px-4 border border-primary text-primary hover:bg-primary/5 py-2 rounded text-xs font-bold"
                                     >
@@ -268,7 +268,7 @@ export default function ListingTable({
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        router.push(`/colleges/${college.slug}`)
+                                                        safeNavigate(college)
                                                     }}
                                                     className="w-full border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded text-xs font-bold transition-colors"
                                                 >
